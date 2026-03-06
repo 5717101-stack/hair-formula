@@ -3,6 +3,7 @@ import type {
   FormulaResult,
   RootsFormula,
   EndsFormula,
+  EndsProductLine,
   UnderlyingPigment,
   ToneCode,
 } from "./types";
@@ -32,32 +33,39 @@ export const TONE_MAP: Record<ToneCode, { name: string; nameHe: string }> = {
   "8": { name: "Mocha", nameHe: "מוקה" },
 };
 
-export interface DiaLightShade {
-  code: string;
-  nameHe: string;
+export const MAJIREL_SHADES = [
+  "1.0", "2.0", "3.0", "4.0", "4.15", "4.3", "4.45",
+  "5.0", "5.1", "5.3", "5.4", "5.5", "5.6", "5.8",
+  "6.0", "6.1", "6.3", "6.34", "6.35", "6.45", "6.46", "6.8",
+  "7.0", "7.1", "7.3", "7.31", "7.35", "7.4", "7.43", "7.44", "7.8",
+  "8.0", "8.1", "8.3", "8.31", "8.34", "8.8",
+  "9.0", "9.1", "9.13", "9.3", "9.31",
+  "10.0", "10.1",
+];
+
+export interface ProductLineSpec {
+  developerVolume: string;
+  mixingRatio: string;
+  processingTime: string;
 }
 
-export const DIA_LIGHT_TONES: DiaLightShade[] = [
-  { code: ".01", nameHe: "טבעי אפור" },
-  { code: ".1", nameHe: "אפור" },
-  { code: ".11", nameHe: "אפור עמוק" },
-  { code: ".12", nameHe: "אפור פנינה" },
-  { code: ".13", nameHe: "אפור זהב (בז׳)" },
-  { code: ".2", nameHe: "פנינה" },
-  { code: ".21", nameHe: "פנינה אפור" },
-  { code: ".23", nameHe: "פנינה זהב" },
-  { code: ".26", nameHe: "פנינה אדום" },
-  { code: ".3", nameHe: "זהב" },
-  { code: ".31", nameHe: "זהב אפור" },
-  { code: ".32", nameHe: "זהב פנינה" },
-  { code: ".4", nameHe: "נחושת" },
-  { code: ".42", nameHe: "נחושת פנינה" },
-  { code: ".46", nameHe: "נחושת אדום" },
-  { code: ".48", nameHe: "נחושת מוקה" },
-  { code: ".52", nameHe: "מהגוני פנינה" },
-  { code: ".8", nameHe: "מוקה" },
-  { code: ".82", nameHe: "מוקה פנינה" },
-];
+export const PRODUCT_LINE_SPECS: Record<EndsProductLine, ProductLineSpec> = {
+  Majirel: {
+    developerVolume: "20 Vol (6%)",
+    mixingRatio: "1 : 1.5",
+    processingTime: "35 דקות",
+  },
+  "Dia Light": {
+    developerVolume: "6 Vol (1.8%)",
+    mixingRatio: "1 : 1.5",
+    processingTime: "20 דקות",
+  },
+  "Dia Color": {
+    developerVolume: "9 Vol (2.7%)",
+    mixingRatio: "1 : 1.5",
+    processingTime: "20 דקות",
+  },
+};
 
 export function getUnderlyingPigment(targetLevel: number): UnderlyingPigment {
   const clamped = Math.max(1, Math.min(10, targetLevel));
@@ -88,11 +96,6 @@ function getProcessingTime(
 
 function isWarmTone(tone: string): boolean {
   return ["3", "4", "5", "6"].includes(tone);
-}
-
-function getToneFamily(diaCode: string): string {
-  const first = diaCode.replace(".", "")[0];
-  return first || "0";
 }
 
 export function calculateFormula(input: ConsultationInput): FormulaResult {
@@ -149,17 +152,17 @@ export function calculateFormula(input: ConsultationInput): FormulaResult {
     processingTime: rootsProcessingTime,
   };
 
-  // --- Ends (Zones 2 & 3) — Dia Light ---
+  // --- Ends (Zones 2 & 3) — Majirel / Dia Light / Dia Color ---
   const currentToneHe = TONE_MAP[input.currentEndsTone]?.nameHe || "טבעי";
-  const endsLevel = Math.max(targetLevel, input.currentEndsLevel);
-  const desiredDiaCode = input.desiredEndsTone;
-  const diaShade = DIA_LIGHT_TONES.find((d) => d.code === desiredDiaCode);
-  const desiredToneHe = diaShade?.nameHe || desiredDiaCode;
+  const refreshShade = input.desiredEndsTone;
+  const productLine = input.endsProductLine;
+  const spec = PRODUCT_LINE_SPECS[productLine];
+
+  const desiredTonePart = refreshShade.split(".")[1] || "0";
+  const desiredToneHe = TONE_MAP[desiredTonePart as ToneCode]?.nameHe || desiredTonePart;
   let toneNote: string | null = null;
 
-  const refreshShade = `${endsLevel}${desiredDiaCode}`;
-
-  const desiredFamily = getToneFamily(desiredDiaCode);
+  const desiredFamily = desiredTonePart[0] || "0";
   if (isWarmTone(input.currentEndsTone) && !isWarmTone(desiredFamily)) {
     toneNote = `האורכים כרגע ${currentToneHe} — מומלץ גוון ${desiredToneHe} לנטרול החמימות`;
   } else if (input.currentEndsTone === desiredFamily) {
@@ -168,10 +171,10 @@ export function calculateFormula(input: ConsultationInput): FormulaResult {
 
   const ends: EndsFormula = {
     refreshShade,
-    productLine: "Dia Light",
-    developerVolume: "6 Vol (1.8%)",
-    mixingRatio: "1 : 1.5",
-    processingTime: "20 דקות",
+    productLine,
+    developerVolume: spec.developerVolume,
+    mixingRatio: spec.mixingRatio,
+    processingTime: spec.processingTime,
     toneNote,
   };
 

@@ -1,5 +1,6 @@
 export type GrayRange = "0-30" | "30-50" | "50-100";
 export type HairThickness = "fine" | "normal" | "thick";
+export type EndsProductLine = "Majirel" | "Dia Light" | "Dia Color";
 
 export type ToneCode =
   | "0"
@@ -17,6 +18,7 @@ export interface ConsultationInput {
   currentEndsLevel: number;
   currentEndsTone: ToneCode;
   desiredEndsTone: string;
+  endsProductLine: EndsProductLine;
   targetShade: string;
   grayPercentage: GrayRange;
   hairThickness: HairThickness;

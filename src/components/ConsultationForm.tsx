@@ -6,12 +6,13 @@ import { Sparkles, AlertTriangle, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { getUnderlyingPigment, DIA_LIGHT_TONES } from "@/lib/colorCalculator";
+import { getUnderlyingPigment, MAJIREL_SHADES } from "@/lib/colorCalculator";
 import type {
   ConsultationInput,
   GrayRange,
   HairThickness,
   ToneCode,
+  EndsProductLine,
 } from "@/lib/types";
 
 const GRAY_OPTIONS: { value: GrayRange; label: string }[] = [
@@ -24,6 +25,12 @@ const THICKNESS_OPTIONS: { value: HairThickness; label: string }[] = [
   { value: "fine", label: "דק" },
   { value: "normal", label: "רגיל" },
   { value: "thick", label: "עבה" },
+];
+
+const PRODUCT_LINE_OPTIONS: { value: EndsProductLine; label: string }[] = [
+  { value: "Majirel", label: "Majirel" },
+  { value: "Dia Light", label: "Dia Light" },
+  { value: "Dia Color", label: "Dia Color" },
 ];
 
 const CURRENT_TONE_OPTIONS: { value: ToneCode; label: string; emoji: string }[] = [
@@ -111,13 +118,14 @@ export default function ConsultationForm({ onCalculate }: Props) {
   const [naturalRoot, setNaturalRoot] = useState(5);
   const [currentEndsLevel, setCurrentEndsLevel] = useState(5);
   const [currentEndsTone, setCurrentEndsTone] = useState<ToneCode>("0");
-  const [desiredEndsTone, setDesiredEndsTone] = useState(".01");
+  const [desiredEndsTone, setDesiredEndsTone] = useState("7.0");
+  const [endsProductLine, setEndsProductLine] = useState<EndsProductLine>("Dia Light");
   const [targetShade, setTargetShade] = useState("7.0");
   const [grayPercentage, setGrayPercentage] = useState<GrayRange>("0-30");
   const [hairThickness, setHairThickness] = useState<HairThickness>("normal");
   const [neutralize, setNeutralize] = useState(false);
   const [shadeDropdownOpen, setShadeDropdownOpen] = useState(false);
-  const [diaDropdownOpen, setDiaDropdownOpen] = useState(false);
+  const [endsShadeDropdownOpen, setEndsShadeDropdownOpen] = useState(false);
 
   const targetLevel = Math.round(parseFloat(targetShade));
   const liftNeeded = targetLevel - naturalRoot;
@@ -127,14 +135,13 @@ export default function ConsultationForm({ onCalculate }: Props) {
     [targetLevel, liftNeeded]
   );
 
-  const selectedDia = DIA_LIGHT_TONES.find((d) => d.code === desiredEndsTone);
-
   const handleSubmit = () => {
     onCalculate({
       naturalRootBase: naturalRoot,
       currentEndsLevel,
       currentEndsTone,
       desiredEndsTone,
+      endsProductLine,
       targetShade,
       grayPercentage,
       hairThickness,
@@ -186,7 +193,7 @@ export default function ConsultationForm({ onCalculate }: Props) {
         <div className="relative">
           <button
             type="button"
-            onClick={() => { setShadeDropdownOpen(!shadeDropdownOpen); setDiaDropdownOpen(false); }}
+            onClick={() => { setShadeDropdownOpen(!shadeDropdownOpen); setEndsShadeDropdownOpen(false); }}
             className="w-full py-3.5 px-4 rounded-2xl bg-zinc-100 text-right font-medium text-zinc-800 hover:bg-zinc-200 transition-colors flex items-center justify-between"
           >
             <svg
@@ -348,62 +355,68 @@ export default function ConsultationForm({ onCalculate }: Props) {
         </div>
       </div>
 
-      {/* Desired Ends Tone — Dia Light catalog shades */}
+      {/* Desired Ends Shade — Majirel catalog */}
       <div className="space-y-3">
         <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-          גוון רצוי באורכים (Dia Light)
+          גוון רצוי באורכים (Majirel)
         </Label>
         <div className="relative">
           <button
             type="button"
-            onClick={() => { setDiaDropdownOpen(!diaDropdownOpen); setShadeDropdownOpen(false); }}
+            onClick={() => { setEndsShadeDropdownOpen(!endsShadeDropdownOpen); setShadeDropdownOpen(false); }}
             className="w-full py-3.5 px-4 rounded-2xl bg-zinc-100 text-right font-medium text-zinc-800 hover:bg-zinc-200 transition-colors flex items-center justify-between"
           >
             <svg
-              className={`w-4 h-4 text-zinc-400 transition-transform ${diaDropdownOpen ? "rotate-180" : ""}`}
+              className={`w-4 h-4 text-zinc-400 transition-transform ${endsShadeDropdownOpen ? "rotate-180" : ""}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
-            <span className="text-base">
-              <span className="font-bold">{desiredEndsTone}</span>
-              {selectedDia && <span className="text-zinc-500 me-2"> {selectedDia.nameHe}</span>}
-            </span>
+            <span className="text-lg font-bold">{desiredEndsTone}</span>
           </button>
-          {diaDropdownOpen && (
+          {endsShadeDropdownOpen && (
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              className="absolute z-50 mt-2 w-full bg-white rounded-2xl shadow-xl border border-zinc-200 p-3 max-h-64 overflow-y-auto"
+              className="absolute z-50 mt-2 w-full bg-white rounded-2xl shadow-xl border border-zinc-200 p-3 max-h-60 overflow-y-auto"
             >
-              <div className="space-y-1">
-                {DIA_LIGHT_TONES.map((shade) => (
+              <div className="grid grid-cols-4 gap-1.5">
+                {MAJIREL_SHADES.map((shade) => (
                   <button
-                    key={shade.code}
+                    key={shade}
                     type="button"
                     onClick={() => {
-                      setDesiredEndsTone(shade.code);
-                      setDiaDropdownOpen(false);
+                      setDesiredEndsTone(shade);
+                      setEndsShadeDropdownOpen(false);
                     }}
-                    className={`w-full py-2.5 px-3 rounded-xl text-sm font-medium transition-all flex items-center justify-between ${
-                      shade.code === desiredEndsTone
+                    className={`py-2 px-1 rounded-xl text-sm font-medium transition-all ${
+                      shade === desiredEndsTone
                         ? "bg-zinc-900 text-white"
                         : "bg-zinc-50 text-zinc-700 hover:bg-zinc-200"
                     }`}
                   >
-                    <span className={shade.code === desiredEndsTone ? "text-zinc-300" : "text-zinc-400"}>
-                      {shade.nameHe}
-                    </span>
-                    <span className="font-bold tabular-nums" dir="ltr">{shade.code}</span>
+                    {shade}
                   </button>
                 ))}
               </div>
             </motion.div>
           )}
         </div>
+      </div>
+
+      {/* Product Line for Ends */}
+      <div className="space-y-3">
+        <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
+          קו מוצרים לאורכים
+        </Label>
+        <ToggleGroup
+          options={PRODUCT_LINE_OPTIONS}
+          value={endsProductLine}
+          onChange={setEndsProductLine}
+        />
       </div>
 
       {/* ─── כללי ─── */}
