@@ -9,6 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://hair-formula.bachar-israeli.com"),
   title: "KK Hair Styling — מחשבון פורמולות צבע",
   description:
     "מחשבון פורמולות צבע שיער מקצועי. חישוב פורמולת שורשים ואורכים, ניהול היסטוריית לקוחות.",
