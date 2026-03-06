@@ -10,6 +10,7 @@ import SaveFormulaModal from "@/components/SaveFormulaModal";
 import ClientHistory from "@/components/ClientHistory";
 import { calculateFormula } from "@/lib/colorCalculator";
 import type { ConsultationInput, FormulaResult } from "@/lib/types";
+import pkg from "../../package.json";
 
 type Tab = "formula" | "clients";
 
@@ -39,7 +40,7 @@ export default function Home() {
                 KK Hair Styling
               </h1>
               <p className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider">
-                מחשבון פורמולות צבע
+                מחשבון פורמולות צבע · v{pkg.version}
               </p>
             </div>
             <Image
