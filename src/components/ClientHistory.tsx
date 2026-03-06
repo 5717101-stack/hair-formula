@@ -26,6 +26,27 @@ function formatDate(iso: string) {
   });
 }
 
+function getVisitSummary(formula: ClientVisit["formula"]): string {
+  const st = formula.serviceType || "majirel";
+  if (st === "highLift" && formula.highLift) return `High Lift · ${formula.highLift.shade}`;
+  if (st === "bleach" && formula.bleach) return `הבהרה · ${formula.bleach.productNameHe || formula.bleach.product}`;
+  if (formula.roots) return `${formula.roots.colorLine} · ${formula.roots.targetShade}`;
+  return "פורמולה";
+}
+
+function FormulaGrid({ rows }: { rows: { label: string; value: string }[] }) {
+  return (
+    <div className="grid grid-cols-2 gap-y-1 text-xs">
+      {rows.map((r, i) => (
+        <div key={i} className="contents">
+          <span className="font-medium text-zinc-700 text-start">{r.value}</span>
+          <span className="text-zinc-400 text-end">{r.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function VisitCard({
   visit,
   onDelete,
@@ -35,6 +56,7 @@ function VisitCard({
 }) {
   const [expanded, setExpanded] = useState(false);
   const { formula } = visit;
+  const st = formula.serviceType || "majirel";
 
   return (
     <motion.div
@@ -59,7 +81,7 @@ function VisitCard({
               {formatDate(visit.date)}
             </p>
             <p className="text-xs text-zinc-400 truncate">
-              {formula.roots.colorLine} &middot; {formula.roots.targetShade}
+              {getVisitSummary(formula)}
             </p>
           </div>
           <div className="w-9 h-9 rounded-xl bg-zinc-100 flex items-center justify-center flex-shrink-0">
@@ -80,69 +102,87 @@ function VisitCard({
             <div className="px-4 pb-4 space-y-3">
               <Separator />
 
-              {/* Roots */}
-              <div className="p-3 bg-rose-50/50 rounded-xl space-y-1.5">
-                <div className="flex items-center gap-2 text-xs font-semibold text-rose-600 justify-end">
-                  שורשים — Zone 1
-                  <Droplets className="w-3.5 h-3.5" />
+              {/* Majirel Roots */}
+              {st === "majirel" && formula.roots && (
+                <div className="p-3 bg-rose-50/50 rounded-xl space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-rose-600 justify-end">
+                    שורשים — Zone 1
+                    <Droplets className="w-3.5 h-3.5" />
+                  </div>
+                  <FormulaGrid rows={[
+                    { label: "גוון", value: formula.roots.targetShade },
+                    ...(formula.roots.baseShade ? [{ label: "בסיס", value: formula.roots.baseShade }] : []),
+                    { label: "מפתח", value: formula.roots.developerVolume },
+                    { label: "יחס", value: formula.roots.mixingRatio },
+                    { label: "זמן", value: formula.roots.processingTime },
+                  ]} />
                 </div>
-                <div className="grid grid-cols-2 gap-y-1 text-xs">
-                  <span className="font-medium text-zinc-700 text-start">
-                    {formula.roots.targetShade}
-                  </span>
-                  <span className="text-zinc-400 text-end">גוון</span>
-                  {formula.roots.baseShade && (
-                    <>
-                      <span className="font-medium text-zinc-700 text-start">
-                        {formula.roots.baseShade}
-                      </span>
-                      <span className="text-zinc-400 text-end">בסיס</span>
-                    </>
-                  )}
-                  <span className="font-medium text-zinc-700 text-start">
-                    {formula.roots.developerVolume}
-                  </span>
-                  <span className="text-zinc-400 text-end">מפתח</span>
-                  <span className="font-medium text-zinc-700 text-start">
-                    {formula.roots.mixingRatio}
-                  </span>
-                  <span className="text-zinc-400 text-end">יחס</span>
-                  <span className="font-medium text-zinc-700 text-start">
-                    {formula.roots.processingTime}
-                  </span>
-                  <span className="text-zinc-400 text-end">זמן</span>
-                </div>
-              </div>
+              )}
 
-              {/* Ends */}
-              <div className="p-3 bg-emerald-50/50 rounded-xl space-y-1.5">
-                <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600 justify-end">
-                  אורכים — Zones 2 & 3
-                  <Sun className="w-3.5 h-3.5" />
+              {/* High Lift */}
+              {st === "highLift" && formula.highLift && (
+                <div className="p-3 bg-amber-50/50 rounded-xl space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-amber-600 justify-end">
+                    High Lift
+                    <FlaskConical className="w-3.5 h-3.5" />
+                  </div>
+                  <FormulaGrid rows={[
+                    { label: "גוון", value: `${formula.highLift.shade} — ${formula.highLift.shadeNameHe}` },
+                    { label: "מפתח", value: formula.highLift.developerVolume },
+                    { label: "יחס", value: formula.highLift.mixingRatio },
+                    { label: "זמן", value: formula.highLift.processingTime },
+                  ]} />
                 </div>
-                <div className="grid grid-cols-2 gap-y-1 text-xs">
-                  <span className="font-medium text-zinc-700 text-start">
-                    {formula.ends.productLine}
-                  </span>
-                  <span className="text-zinc-400 text-end">מוצר</span>
-                  <span className="font-medium text-zinc-700 text-start">
-                    {formula.ends.refreshShade}
-                  </span>
-                  <span className="text-zinc-400 text-end">גוון</span>
-                  <span className="font-medium text-zinc-700 text-start">
-                    {formula.ends.developerVolume}
-                  </span>
-                  <span className="text-zinc-400 text-end">מפתח</span>
-                  <span className="font-medium text-zinc-700 text-start">
-                    {formula.ends.mixingRatio}
-                  </span>
-                  <span className="text-zinc-400 text-end">יחס</span>
-                  <span className="font-medium text-zinc-700 text-start">
-                    {formula.ends.processingTime}
-                  </span>
-                  <span className="text-zinc-400 text-end">זמן</span>
+              )}
+
+              {/* Bleach */}
+              {st === "bleach" && formula.bleach && (
+                <div className="p-3 bg-yellow-50/50 rounded-xl space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-yellow-700 justify-end">
+                    הבהרה — {formula.bleach.techniqueHe}
+                    <FlaskConical className="w-3.5 h-3.5" />
+                  </div>
+                  <FormulaGrid rows={[
+                    { label: "מוצר", value: formula.bleach.productNameHe || formula.bleach.product },
+                    { label: "מפתח", value: formula.bleach.developerVolume },
+                    { label: "יחס", value: formula.bleach.mixingRatio },
+                    { label: "זמן", value: formula.bleach.processingTime },
+                  ]} />
                 </div>
-              </div>
+              )}
+
+              {/* Toner */}
+              {st === "bleach" && formula.toner && (
+                <div className="p-3 bg-violet-50/50 rounded-xl space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-violet-600 justify-end">
+                    שטיפה — {formula.toner.productLine}
+                    <Droplets className="w-3.5 h-3.5" />
+                  </div>
+                  <FormulaGrid rows={[
+                    { label: "גוון", value: formula.toner.shade },
+                    { label: "מפתח", value: formula.toner.developerVolume },
+                    { label: "יחס", value: formula.toner.mixingRatio },
+                    { label: "זמן", value: formula.toner.processingTime },
+                  ]} />
+                </div>
+              )}
+
+              {/* Ends (Majirel and High Lift) */}
+              {(st === "majirel" || st === "highLift") && formula.ends && (
+                <div className="p-3 bg-emerald-50/50 rounded-xl space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600 justify-end">
+                    אורכים — Zones 2 & 3
+                    <Sun className="w-3.5 h-3.5" />
+                  </div>
+                  <FormulaGrid rows={[
+                    { label: "מוצר", value: formula.ends.productLine },
+                    { label: "גוון", value: formula.ends.refreshShade },
+                    { label: "מפתח", value: formula.ends.developerVolume },
+                    { label: "יחס", value: formula.ends.mixingRatio },
+                    { label: "זמן", value: formula.ends.processingTime },
+                  ]} />
+                </div>
+              )}
 
               {visit.notes && (
                 <div className="p-3 bg-zinc-50 rounded-xl">

@@ -1,6 +1,8 @@
 export type GrayRange = "0-30" | "30-50" | "50-100";
 export type HairThickness = "fine" | "normal" | "thick";
 export type EndsProductLine = "Majirel" | "Dia Light" | "Dia Color";
+export type ServiceType = "majirel" | "highLift" | "bleach";
+export type BleachTechnique = "balayage" | "foils" | "global";
 
 export type ToneCode =
   | "0"
@@ -14,15 +16,26 @@ export type ToneCode =
   | "8";
 
 export interface ConsultationInput {
+  serviceType: ServiceType;
   naturalRootBase: number;
   currentEndsLevel: number;
   currentEndsTone: ToneCode;
-  desiredEndsTone: string;
-  endsProductLine: EndsProductLine;
-  targetShade: string;
   grayPercentage: GrayRange;
   hairThickness: HairThickness;
+  // Majirel mode
+  targetShade: string;
   neutralize: boolean;
+  desiredEndsTone: string;
+  endsProductLine: EndsProductLine;
+  // High Lift mode
+  highLiftShade: string;
+  highLiftDeveloper: string;
+  // Bleach mode
+  bleachProduct: string;
+  bleachTechnique: BleachTechnique;
+  bleachDeveloper: string;
+  tonerProductLine: string;
+  tonerShade: string;
 }
 
 export interface UnderlyingPigment {
@@ -57,9 +70,41 @@ export interface EndsFormula {
   toneNote: string | null;
 }
 
+export interface HighLiftFormula {
+  shade: string;
+  shadeNameHe: string;
+  developerVolume: string;
+  mixingRatio: string;
+  processingTime: string;
+  notes: string[];
+}
+
+export interface BleachFormula {
+  product: string;
+  productNameHe: string;
+  technique: string;
+  techniqueHe: string;
+  developerVolume: string;
+  mixingRatio: string;
+  processingTime: string;
+  maxLift: string;
+}
+
+export interface TonerFormula {
+  productLine: string;
+  shade: string;
+  developerVolume: string;
+  mixingRatio: string;
+  processingTime: string;
+}
+
 export interface FormulaResult {
-  roots: RootsFormula;
-  ends: EndsFormula;
+  serviceType: ServiceType;
+  roots?: RootsFormula;
+  ends?: EndsFormula;
+  highLift?: HighLiftFormula;
+  bleach?: BleachFormula;
+  toner?: TonerFormula;
   input: ConsultationInput;
   createdAt: string;
 }
