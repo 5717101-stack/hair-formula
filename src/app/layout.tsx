@@ -11,12 +11,12 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "KK Hair Styling — מחשבון פורמולות צבע",
   description:
-    "מחשבון פורמולות צבע שיער מקצועי של לוריאל. חישוב פורמולת שורשים ואורכים, ניהול היסטוריית לקוחות.",
+    "מחשבון פורמולות צבע שיער מקצועי. חישוב פורמולת שורשים ואורכים, ניהול היסטוריית לקוחות.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Hair Formula",
+    title: "KK Hair",
   },
   icons: {
     icon: [
@@ -24,6 +24,15 @@ export const metadata: Metadata = {
       { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  openGraph: {
+    title: "KK Hair Styling — מחשבון פורמולות צבע",
+    description: "מחשבון פורמולות צבע שיער מקצועי. חישוב פורמולת שורשים ואורכים, ניהול היסטוריית לקוחות.",
+    url: "https://hair-formula.bachar-israeli.com",
+    siteName: "KK Hair Styling",
+    images: [{ url: "/logo.png", width: 1024, height: 1024, alt: "KK Hair Styling" }],
+    locale: "he_IL",
+    type: "website",
   },
 };
 
