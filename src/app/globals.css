@@ -95,6 +95,15 @@
   }
 }
 
+/* PWA standalone mode */
+@media (display-mode: standalone) {
+  body {
+    overscroll-behavior-y: none;
+    -webkit-user-select: none;
+    user-select: text;
+  }
+}
+
 /* Smooth scrolling and touch optimizations */
 @layer utilities {
   .scrollbar-hide {
