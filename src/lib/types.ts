@@ -1,6 +1,5 @@
 export type GrayRange = "0-30" | "30-50" | "50-100";
 export type HairThickness = "fine" | "normal" | "thick";
-export type ColorLine = "majirel" | "inoa";
 
 export type ToneCode =
   | "0"
@@ -17,11 +16,10 @@ export interface ConsultationInput {
   naturalRootBase: number;
   currentEndsLevel: number;
   currentEndsTone: ToneCode;
-  desiredEndsTone: ToneCode;
+  desiredEndsTone: string;
   targetShade: string;
   grayPercentage: GrayRange;
   hairThickness: HairThickness;
-  colorLine: ColorLine;
   neutralize: boolean;
 }
 

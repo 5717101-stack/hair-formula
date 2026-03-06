@@ -78,7 +78,7 @@ export default function FormulaCards({ result, onSave }: Props) {
 
         <div className="space-y-0.5">
           <InfoRow
-            label="קו צבע"
+            label="מוצר"
             value={roots.colorLine}
             icon={<FlaskConical className="w-3.5 h-3.5" />}
           />

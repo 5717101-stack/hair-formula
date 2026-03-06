@@ -6,12 +6,11 @@ import { Sparkles, AlertTriangle, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { getUnderlyingPigment, TONE_MAP } from "@/lib/colorCalculator";
+import { getUnderlyingPigment, DIA_LIGHT_TONES } from "@/lib/colorCalculator";
 import type {
   ConsultationInput,
   GrayRange,
   HairThickness,
-  ColorLine,
   ToneCode,
 } from "@/lib/types";
 
@@ -27,15 +26,10 @@ const THICKNESS_OPTIONS: { value: HairThickness; label: string }[] = [
   { value: "thick", label: "עבה" },
 ];
 
-const COLOR_LINE_OPTIONS: { value: ColorLine; label: string }[] = [
-  { value: "majirel", label: "Majirel" },
-  { value: "inoa", label: "iNOA" },
-];
-
-const TONE_OPTIONS: { value: ToneCode; label: string; emoji: string }[] = [
+const CURRENT_TONE_OPTIONS: { value: ToneCode; label: string; emoji: string }[] = [
   { value: "0", label: "טבעי", emoji: "⚪" },
-  { value: "1", label: "אש", emoji: "🔵" },
-  { value: "2", label: "אירידסנט", emoji: "🟣" },
+  { value: "1", label: "אפור", emoji: "🔵" },
+  { value: "2", label: "פנינה", emoji: "🟣" },
   { value: "3", label: "זהב", emoji: "🟡" },
   { value: "4", label: "נחושת", emoji: "🟠" },
   { value: "5", label: "מהגוני", emoji: "🔴" },
@@ -109,44 +103,6 @@ function ToggleGroup<T extends string>({
   );
 }
 
-function ToneSelector({
-  value,
-  onChange,
-  label,
-}: {
-  value: ToneCode;
-  onChange: (v: ToneCode) => void;
-  label: string;
-}) {
-  return (
-    <div className="space-y-3">
-      <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-        {label}
-      </Label>
-      <div className="grid grid-cols-4 gap-2">
-        {TONE_OPTIONS.map((t) => {
-          const active = t.value === value;
-          return (
-            <button
-              key={t.value}
-              type="button"
-              onClick={() => onChange(t.value)}
-              className={`py-2.5 px-2 rounded-2xl text-xs font-medium transition-all duration-200 flex flex-col items-center gap-1 ${
-                active
-                  ? "bg-zinc-900 text-white shadow-lg scale-[1.02]"
-                  : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200"
-              }`}
-            >
-              <span className="text-base">{t.emoji}</span>
-              <span>{t.label}</span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 interface Props {
   onCalculate: (input: ConsultationInput) => void;
 }
@@ -155,13 +111,13 @@ export default function ConsultationForm({ onCalculate }: Props) {
   const [naturalRoot, setNaturalRoot] = useState(5);
   const [currentEndsLevel, setCurrentEndsLevel] = useState(5);
   const [currentEndsTone, setCurrentEndsTone] = useState<ToneCode>("0");
-  const [desiredEndsTone, setDesiredEndsTone] = useState<ToneCode>("0");
+  const [desiredEndsTone, setDesiredEndsTone] = useState(".01");
   const [targetShade, setTargetShade] = useState("7.0");
   const [grayPercentage, setGrayPercentage] = useState<GrayRange>("0-30");
   const [hairThickness, setHairThickness] = useState<HairThickness>("normal");
-  const [colorLine, setColorLine] = useState<ColorLine>("majirel");
   const [neutralize, setNeutralize] = useState(false);
   const [shadeDropdownOpen, setShadeDropdownOpen] = useState(false);
+  const [diaDropdownOpen, setDiaDropdownOpen] = useState(false);
 
   const targetLevel = Math.round(parseFloat(targetShade));
   const liftNeeded = targetLevel - naturalRoot;
@@ -170,6 +126,8 @@ export default function ConsultationForm({ onCalculate }: Props) {
     () => (liftNeeded > 0 ? getUnderlyingPigment(targetLevel) : null),
     [targetLevel, liftNeeded]
   );
+
+  const selectedDia = DIA_LIGHT_TONES.find((d) => d.code === desiredEndsTone);
 
   const handleSubmit = () => {
     onCalculate({
@@ -180,7 +138,6 @@ export default function ConsultationForm({ onCalculate }: Props) {
       targetShade,
       grayPercentage,
       hairThickness,
-      colorLine,
       neutralize,
     });
   };
@@ -192,16 +149,11 @@ export default function ConsultationForm({ onCalculate }: Props) {
       transition={{ duration: 0.4 }}
       className="space-y-8"
     >
-      {/* Color Line */}
-      <div className="space-y-3">
-        <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-          קו צבע
-        </Label>
-        <ToggleGroup
-          options={COLOR_LINE_OPTIONS}
-          value={colorLine}
-          onChange={setColorLine}
-        />
+      {/* ─── שורשים ─── */}
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-px bg-zinc-200" />
+        <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">שורשים</span>
+        <div className="flex-1 h-px bg-zinc-200" />
       </div>
 
       {/* Natural Root Base */}
@@ -229,12 +181,12 @@ export default function ConsultationForm({ onCalculate }: Props) {
       {/* Target Shade */}
       <div className="space-y-3">
         <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-          גוון יעד
+          גוון יעד (Majirel)
         </Label>
         <div className="relative">
           <button
             type="button"
-            onClick={() => setShadeDropdownOpen(!shadeDropdownOpen)}
+            onClick={() => { setShadeDropdownOpen(!shadeDropdownOpen); setDiaDropdownOpen(false); }}
             className="w-full py-3.5 px-4 rounded-2xl bg-zinc-100 text-right font-medium text-zinc-800 hover:bg-zinc-200 transition-colors flex items-center justify-between"
           >
             <svg
@@ -304,7 +256,6 @@ export default function ConsultationForm({ onCalculate }: Props) {
                 />
               </div>
 
-              {/* Neutralize Toggle */}
               <div className="flex items-center justify-between pt-1">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-zinc-500" />
@@ -341,31 +292,7 @@ export default function ConsultationForm({ onCalculate }: Props) {
         )}
       </AnimatePresence>
 
-      {/* Gray Hair */}
-      <div className="space-y-3">
-        <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-          אחוז שיער אפור
-        </Label>
-        <ToggleGroup
-          options={GRAY_OPTIONS}
-          value={grayPercentage}
-          onChange={setGrayPercentage}
-        />
-      </div>
-
-      {/* Hair Thickness */}
-      <div className="space-y-3">
-        <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-          עובי שיער
-        </Label>
-        <ToggleGroup
-          options={THICKNESS_OPTIONS}
-          value={hairThickness}
-          onChange={setHairThickness}
-        />
-      </div>
-
-      {/* Separator */}
+      {/* ─── אורכים וקצוות ─── */}
       <div className="flex items-center gap-3 pt-2">
         <div className="flex-1 h-px bg-zinc-200" />
         <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">אורכים וקצוות</span>
@@ -395,18 +322,120 @@ export default function ConsultationForm({ onCalculate }: Props) {
       </div>
 
       {/* Current Ends Tone */}
-      <ToneSelector
-        value={currentEndsTone}
-        onChange={setCurrentEndsTone}
-        label="גוון נוכחי באורכים"
-      />
+      <div className="space-y-3">
+        <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
+          גוון נוכחי באורכים
+        </Label>
+        <div className="grid grid-cols-4 gap-2">
+          {CURRENT_TONE_OPTIONS.map((t) => {
+            const active = t.value === currentEndsTone;
+            return (
+              <button
+                key={t.value}
+                type="button"
+                onClick={() => setCurrentEndsTone(t.value)}
+                className={`py-2.5 px-2 rounded-2xl text-xs font-medium transition-all duration-200 flex flex-col items-center gap-1 ${
+                  active
+                    ? "bg-zinc-900 text-white shadow-lg scale-[1.02]"
+                    : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200"
+                }`}
+              >
+                <span className="text-base">{t.emoji}</span>
+                <span>{t.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
-      {/* Desired Ends Tone */}
-      <ToneSelector
-        value={desiredEndsTone}
-        onChange={setDesiredEndsTone}
-        label="גוון רצוי באורכים"
-      />
+      {/* Desired Ends Tone — Dia Light catalog shades */}
+      <div className="space-y-3">
+        <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
+          גוון רצוי באורכים (Dia Light)
+        </Label>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => { setDiaDropdownOpen(!diaDropdownOpen); setShadeDropdownOpen(false); }}
+            className="w-full py-3.5 px-4 rounded-2xl bg-zinc-100 text-right font-medium text-zinc-800 hover:bg-zinc-200 transition-colors flex items-center justify-between"
+          >
+            <svg
+              className={`w-4 h-4 text-zinc-400 transition-transform ${diaDropdownOpen ? "rotate-180" : ""}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+            <span className="text-base">
+              <span className="font-bold">{desiredEndsTone}</span>
+              {selectedDia && <span className="text-zinc-500 me-2"> {selectedDia.nameHe}</span>}
+            </span>
+          </button>
+          {diaDropdownOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="absolute z-50 mt-2 w-full bg-white rounded-2xl shadow-xl border border-zinc-200 p-3 max-h-64 overflow-y-auto"
+            >
+              <div className="space-y-1">
+                {DIA_LIGHT_TONES.map((shade) => (
+                  <button
+                    key={shade.code}
+                    type="button"
+                    onClick={() => {
+                      setDesiredEndsTone(shade.code);
+                      setDiaDropdownOpen(false);
+                    }}
+                    className={`w-full py-2.5 px-3 rounded-xl text-sm font-medium transition-all flex items-center justify-between ${
+                      shade.code === desiredEndsTone
+                        ? "bg-zinc-900 text-white"
+                        : "bg-zinc-50 text-zinc-700 hover:bg-zinc-200"
+                    }`}
+                  >
+                    <span className={shade.code === desiredEndsTone ? "text-zinc-300" : "text-zinc-400"}>
+                      {shade.nameHe}
+                    </span>
+                    <span className="font-bold tabular-nums" dir="ltr">{shade.code}</span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </div>
+
+      {/* ─── כללי ─── */}
+      <div className="flex items-center gap-3 pt-2">
+        <div className="flex-1 h-px bg-zinc-200" />
+        <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">כללי</span>
+        <div className="flex-1 h-px bg-zinc-200" />
+      </div>
+
+      {/* Gray Hair */}
+      <div className="space-y-3">
+        <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
+          אחוז שיער אפור
+        </Label>
+        <ToggleGroup
+          options={GRAY_OPTIONS}
+          value={grayPercentage}
+          onChange={setGrayPercentage}
+        />
+      </div>
+
+      {/* Hair Thickness */}
+      <div className="space-y-3">
+        <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
+          עובי שיער
+        </Label>
+        <ToggleGroup
+          options={THICKNESS_OPTIONS}
+          value={hairThickness}
+          onChange={setHairThickness}
+        />
+      </div>
 
       {/* Calculate Button */}
       <Button

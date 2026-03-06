@@ -7,13 +7,12 @@ import type {
   ToneCode,
 } from "./types";
 
-// L'Oréal underlying pigment chart — pigment exposed when lifting TO this level
 export const UNDERLYING_PIGMENTS: UnderlyingPigment[] = [
   { level: 1, pigment: "Darkest Red", pigmentHe: "אדום כהה מאוד", color: "#4a0404", neutralizer: "Green", neutralizerTone: ".7", neutralizerHe: "ירוק (.7)" },
   { level: 2, pigment: "Dark Red", pigmentHe: "אדום כהה", color: "#6b0f0f", neutralizer: "Green", neutralizerTone: ".7", neutralizerHe: "ירוק (.7)" },
   { level: 3, pigment: "Red Orange", pigmentHe: "אדום-כתום", color: "#8b2500", neutralizer: "Green Blue", neutralizerTone: ".17", neutralizerHe: "ירוק-כחול (.17)" },
-  { level: 4, pigment: "Dark Orange", pigmentHe: "כתום כהה", color: "#b44d12", neutralizer: "Blue", neutralizerTone: ".1", neutralizerHe: "כחול/אש (.1)" },
-  { level: 5, pigment: "Orange", pigmentHe: "כתום", color: "#d4771a", neutralizer: "Blue", neutralizerTone: ".1", neutralizerHe: "כחול/אש (.1)" },
+  { level: 4, pigment: "Dark Orange", pigmentHe: "כתום כהה", color: "#b44d12", neutralizer: "Blue", neutralizerTone: ".1", neutralizerHe: "כחול/אפור (.1)" },
+  { level: 5, pigment: "Orange", pigmentHe: "כתום", color: "#d4771a", neutralizer: "Blue", neutralizerTone: ".1", neutralizerHe: "כחול/אפור (.1)" },
   { level: 6, pigment: "Gold Orange", pigmentHe: "כתום-זהב", color: "#d4951a", neutralizer: "Blue Violet", neutralizerTone: ".12", neutralizerHe: "כחול-סגול (.12)" },
   { level: 7, pigment: "Gold", pigmentHe: "זהב", color: "#d4b01a", neutralizer: "Violet Blue", neutralizerTone: ".21", neutralizerHe: "סגול-כחול (.21)" },
   { level: 8, pigment: "Yellow Gold", pigmentHe: "צהוב-זהב", color: "#e6c84a", neutralizer: "Violet", neutralizerTone: ".2", neutralizerHe: "סגול (.2)" },
@@ -23,8 +22,8 @@ export const UNDERLYING_PIGMENTS: UnderlyingPigment[] = [
 
 export const TONE_MAP: Record<ToneCode, { name: string; nameHe: string }> = {
   "0": { name: "Natural", nameHe: "טבעי" },
-  "1": { name: "Ash", nameHe: "אש (כחול)" },
-  "2": { name: "Iridescent", nameHe: "אירידסנט (סגול)" },
+  "1": { name: "Ash", nameHe: "אפור" },
+  "2": { name: "Pearl", nameHe: "פנינה" },
   "3": { name: "Gold", nameHe: "זהב" },
   "4": { name: "Copper", nameHe: "נחושת" },
   "5": { name: "Mahogany", nameHe: "מהגוני" },
@@ -32,6 +31,33 @@ export const TONE_MAP: Record<ToneCode, { name: string; nameHe: string }> = {
   "7": { name: "Green", nameHe: "ירוק (מאט)" },
   "8": { name: "Mocha", nameHe: "מוקה" },
 };
+
+export interface DiaLightShade {
+  code: string;
+  nameHe: string;
+}
+
+export const DIA_LIGHT_TONES: DiaLightShade[] = [
+  { code: ".01", nameHe: "טבעי אפור" },
+  { code: ".1", nameHe: "אפור" },
+  { code: ".11", nameHe: "אפור עמוק" },
+  { code: ".12", nameHe: "אפור פנינה" },
+  { code: ".13", nameHe: "אפור זהב (בז׳)" },
+  { code: ".2", nameHe: "פנינה" },
+  { code: ".21", nameHe: "פנינה אפור" },
+  { code: ".23", nameHe: "פנינה זהב" },
+  { code: ".26", nameHe: "פנינה אדום" },
+  { code: ".3", nameHe: "זהב" },
+  { code: ".31", nameHe: "זהב אפור" },
+  { code: ".32", nameHe: "זהב פנינה" },
+  { code: ".4", nameHe: "נחושת" },
+  { code: ".42", nameHe: "נחושת פנינה" },
+  { code: ".46", nameHe: "נחושת אדום" },
+  { code: ".48", nameHe: "נחושת מוקה" },
+  { code: ".52", nameHe: "מהגוני פנינה" },
+  { code: ".8", nameHe: "מוקה" },
+  { code: ".82", nameHe: "מוקה פנינה" },
+];
 
 export function getUnderlyingPigment(targetLevel: number): UnderlyingPigment {
   const clamped = Math.max(1, Math.min(10, targetLevel));
@@ -64,16 +90,19 @@ function isWarmTone(tone: string): boolean {
   return ["3", "4", "5", "6"].includes(tone);
 }
 
+function getToneFamily(diaCode: string): string {
+  const first = diaCode.replace(".", "")[0];
+  return first || "0";
+}
+
 export function calculateFormula(input: ConsultationInput): FormulaResult {
   const targetLevel = parseTargetLevel(input.targetShade);
   const liftNeeded = targetLevel - input.naturalRootBase;
-  const isMajirel = input.colorLine === "majirel";
   const needsGrayCoverage = input.grayPercentage === "50-100";
 
-  // --- Underlying Pigment ---
   const pigment = getUnderlyingPigment(targetLevel);
 
-  // --- Roots (Zone 1) ---
+  // --- Roots (Zone 1) — always Majirel ---
   const rootsDeveloper = getDeveloperVolume(Math.max(0, liftNeeded));
 
   let baseShade: string | null = null;
@@ -101,7 +130,6 @@ export function calculateFormula(input: ConsultationInput): FormulaResult {
     }
   }
 
-  const rootsMixingRatio = isMajirel ? "1 : 1.5" : "1 : 1";
   const rootsProcessingTime = getProcessingTime(
     Math.max(0, liftNeeded),
     input.hairThickness,
@@ -113,58 +141,37 @@ export function calculateFormula(input: ConsultationInput): FormulaResult {
     baseShade,
     mixRatio,
     developerVolume: rootsDeveloper,
-    colorLine: isMajirel ? "Majirel" : "iNOA",
-    mixingRatio: rootsMixingRatio,
+    colorLine: "Majirel",
+    mixingRatio: "1 : 1.5",
     grayCoverageNote,
     neutralizationNote,
     underlyingPigment: liftNeeded > 0 ? pigment : null,
     processingTime: rootsProcessingTime,
   };
 
-  // --- Ends (Zones 2 & 3) ---
-  const currentTone = TONE_MAP[input.currentEndsTone];
-  const desiredTone = TONE_MAP[input.desiredEndsTone];
+  // --- Ends (Zones 2 & 3) — Dia Light ---
+  const currentToneHe = TONE_MAP[input.currentEndsTone]?.nameHe || "טבעי";
   const endsLevel = Math.max(targetLevel, input.currentEndsLevel);
+  const desiredDiaCode = input.desiredEndsTone;
+  const diaShade = DIA_LIGHT_TONES.find((d) => d.code === desiredDiaCode);
+  const desiredToneHe = diaShade?.nameHe || desiredDiaCode;
   let toneNote: string | null = null;
 
-  let endsProductLine: string;
-  let endsDeveloper: string;
-  let endsMixingRatio: string;
-  let endsProcessingTime: string;
-  let refreshShade: string;
+  const refreshShade = `${endsLevel}${desiredDiaCode}`;
 
-  if (isMajirel) {
-    endsProductLine = "Dia Light / Dia Color";
-    endsDeveloper = "6 Vol (1.8%)";
-    endsMixingRatio = "1 : 1.5";
-    endsProcessingTime = "20 דקות";
-    refreshShade = `${endsLevel}.${input.desiredEndsTone === "0" ? (input.targetShade.split(".")[1] || "0") : input.desiredEndsTone}`;
-
-    if (isWarmTone(input.currentEndsTone) && !isWarmTone(input.desiredEndsTone)) {
-      toneNote = `האורכים כרגע ${currentTone.nameHe} — מומלץ גוון ${desiredTone.nameHe} לנטרול החמימות`;
-    } else if (input.currentEndsTone === input.desiredEndsTone) {
-      toneNote = `רענון גוון — שמירה על ${desiredTone.nameHe}`;
-    }
-  } else {
-    endsProductLine = "iNOA (רענון צבע)";
-    endsDeveloper = "10 Vol (3%)";
-    endsMixingRatio = "1 : 1";
-    endsProcessingTime = "20 דקות";
-    refreshShade = `${endsLevel}.${input.desiredEndsTone === "0" ? (input.targetShade.split(".")[1] || "0") : input.desiredEndsTone}`;
-
-    if (isWarmTone(input.currentEndsTone) && !isWarmTone(input.desiredEndsTone)) {
-      toneNote = `האורכים כרגע ${currentTone.nameHe} — מומלץ גוון ${desiredTone.nameHe} לנטרול`;
-    } else if (input.currentEndsTone === input.desiredEndsTone) {
-      toneNote = `רענון גוון — שמירה על ${desiredTone.nameHe}`;
-    }
+  const desiredFamily = getToneFamily(desiredDiaCode);
+  if (isWarmTone(input.currentEndsTone) && !isWarmTone(desiredFamily)) {
+    toneNote = `האורכים כרגע ${currentToneHe} — מומלץ גוון ${desiredToneHe} לנטרול החמימות`;
+  } else if (input.currentEndsTone === desiredFamily) {
+    toneNote = `רענון גוון — שמירה על ${desiredToneHe}`;
   }
 
   const ends: EndsFormula = {
     refreshShade,
-    productLine: endsProductLine,
-    developerVolume: endsDeveloper,
-    mixingRatio: endsMixingRatio,
-    processingTime: endsProcessingTime,
+    productLine: "Dia Light",
+    developerVolume: "6 Vol (1.8%)",
+    mixingRatio: "1 : 1.5",
+    processingTime: "20 דקות",
     toneNote,
   };
 
