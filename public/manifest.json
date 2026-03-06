@@ -1,7 +1,7 @@
 {
-  "name": "Hair Formula — Color Calculator",
-  "short_name": "Hair Formula",
-  "description": "Professional L'Oréal hair color formula calculator",
+  "name": "KK Hair Styling — מחשבון פורמולות",
+  "short_name": "KK Hair",
+  "description": "מחשבון פורמולות צבע שיער מקצועי",
   "start_url": "/",
   "id": "/",
   "display": "standalone",

@@ -2,7 +2,8 @@
 
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Scissors, Users, FlaskConical, ArrowRight } from "lucide-react";
+import Image from "next/image";
+import { Users, FlaskConical, ArrowRight } from "lucide-react";
 import ConsultationForm from "@/components/ConsultationForm";
 import FormulaCards from "@/components/FormulaCards";
 import SaveFormulaModal from "@/components/SaveFormulaModal";
@@ -35,15 +36,20 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <div>
               <h1 className="text-base font-bold tracking-tight">
-                Hair Formula
+                KK Hair Styling
               </h1>
               <p className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider">
-                L&apos;Or&eacute;al Professional
+                מחשבון פורמולות צבע
               </p>
             </div>
-            <div className="w-9 h-9 rounded-xl bg-zinc-900 flex items-center justify-center">
-              <Scissors className="w-4.5 h-4.5 text-white" />
-            </div>
+            <Image
+              src="/logo.png"
+              alt="KK Hair Styling"
+              width={40}
+              height={40}
+              className="rounded-xl"
+              priority
+            />
           </div>
         </div>
       </header>

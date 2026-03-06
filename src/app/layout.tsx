@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Hair Formula — מחשבון פורמולות צבע",
+  title: "KK Hair Styling — מחשבון פורמולות צבע",
   description:
     "מחשבון פורמולות צבע שיער מקצועי של לוריאל. חישוב פורמולת שורשים ואורכים, ניהול היסטוריית לקוחות.",
   manifest: "/manifest.json",
@@ -49,7 +49,7 @@ export default function RootLayout({
           name="apple-mobile-web-app-status-bar-style"
           content="black-translucent"
         />
-        <meta name="apple-mobile-web-app-title" content="Hair Formula" />
+        <meta name="apple-mobile-web-app-title" content="KK Hair" />
         <link
           rel="apple-touch-startup-image"
           media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)"
