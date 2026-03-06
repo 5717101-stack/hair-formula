@@ -89,6 +89,7 @@ export interface BleachFormula {
   mixingRatio: string;
   processingTime: string;
   maxLift: string;
+  notes: string[];
 }
 
 export interface TonerFormula {
@@ -97,6 +98,7 @@ export interface TonerFormula {
   developerVolume: string;
   mixingRatio: string;
   processingTime: string;
+  note: string | null;
 }
 
 export interface FormulaResult {

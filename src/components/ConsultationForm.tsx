@@ -9,13 +9,7 @@ import { Slider } from "@/components/ui/slider";
 import {
   getUnderlyingPigment,
   MAJIREL_SHADES,
-  HIGH_LIFT_SHADES,
-  HIGH_LIFT_DEVELOPERS,
-  BLOND_STUDIO_PRODUCTS,
   BLEACH_TECHNIQUES,
-  BLEACH_DEVELOPERS_OIL,
-  BLEACH_DEVELOPERS_NUTRI,
-  TONER_SHADES,
 } from "@/lib/colorCalculator";
 import type {
   ConsultationInput,
@@ -42,11 +36,6 @@ const THICKNESS_OPTIONS: { value: HairThickness; label: string }[] = [
   { value: "fine", label: "דק" },
   { value: "normal", label: "רגיל" },
   { value: "thick", label: "עבה" },
-];
-
-const TONER_LINE_OPTIONS: { value: string; label: string }[] = [
-  { value: "Dia Light", label: "Dia Light" },
-  { value: "Dia Color", label: "Dia Color" },
 ];
 
 const CURRENT_TONE_OPTIONS: { value: ToneCode; label: string; emoji: string }[] = [
@@ -193,28 +182,16 @@ export default function ConsultationForm({ onCalculate }: Props) {
   const [neutralize, setNeutralize] = useState(false);
   const [desiredEndsTone, setDesiredEndsTone] = useState("7.0");
 
-  // High Lift mode
-  const [highLiftShade, setHighLiftShade] = useState("Neutral");
-  const [highLiftDeveloper, setHighLiftDeveloper] = useState("30 Vol (9%)");
-
   // Bleach mode
-  const [bleachProduct, setBleachProduct] = useState("studio9");
   const [bleachTechnique, setBleachTechnique] = useState<BleachTechnique>("foils");
-  const [bleachDeveloper, setBleachDeveloper] = useState("20 Vol (6%)");
-  const [tonerProductLine, setTonerProductLine] = useState("Dia Light");
-  const [tonerShade, setTonerShade] = useState("9.01");
 
   // Dropdowns
   const [shadeDropdownOpen, setShadeDropdownOpen] = useState(false);
   const [endsShadeDropdownOpen, setEndsShadeDropdownOpen] = useState(false);
-  const [tonerShadeDropdownOpen, setTonerShadeDropdownOpen] = useState(false);
-  const [hlShadeDropdownOpen, setHlShadeDropdownOpen] = useState(false);
 
   const closeAllDropdowns = () => {
     setShadeDropdownOpen(false);
     setEndsShadeDropdownOpen(false);
-    setTonerShadeDropdownOpen(false);
-    setHlShadeDropdownOpen(false);
   };
 
   const targetLevel = Math.round(parseFloat(targetShade));
@@ -224,11 +201,6 @@ export default function ConsultationForm({ onCalculate }: Props) {
     () => (liftNeeded > 0 ? getUnderlyingPigment(targetLevel) : null),
     [targetLevel, liftNeeded]
   );
-
-  const selectedBleachProduct = BLOND_STUDIO_PRODUCTS.find((p) => p.code === bleachProduct);
-  const availableBleachDevs = selectedBleachProduct?.developerType === "nutri"
-    ? BLEACH_DEVELOPERS_NUTRI
-    : BLEACH_DEVELOPERS_OIL;
 
   const handleSubmit = () => {
     onCalculate({
@@ -242,13 +214,13 @@ export default function ConsultationForm({ onCalculate }: Props) {
       neutralize,
       desiredEndsTone,
       endsProductLine: "Dia Light",
-      highLiftShade,
-      highLiftDeveloper,
-      bleachProduct,
+      highLiftShade: "Neutral",
+      highLiftDeveloper: "30 Vol (9%)",
+      bleachProduct: "studio9",
       bleachTechnique,
-      bleachDeveloper,
-      tonerProductLine,
-      tonerShade,
+      bleachDeveloper: "20 Vol (6%)",
+      tonerProductLine: "Dia Light",
+      tonerShade: "9.01",
     });
   };
 
@@ -457,16 +429,17 @@ export default function ConsultationForm({ onCalculate }: Props) {
       {/* ═══════════ HIGH LIFT MODE ═══════════ */}
       {serviceType === "highLift" && (
         <>
+          {/* ─── שורשים ─── */}
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-zinc-200" />
-            <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">Majirel High Lift</span>
+            <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">שורשים — High Lift</span>
             <div className="flex-1 h-px bg-zinc-200" />
           </div>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-                בסיס טבעי
+                בסיס טבעי בשורשים
               </Label>
               <LevelDisplay level={naturalRoot} />
             </div>
@@ -495,72 +468,21 @@ export default function ConsultationForm({ onCalculate }: Props) {
 
           <div className="space-y-3">
             <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-              גוון High Lift
+              גוון יעד (Majirel)
             </Label>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => { closeAllDropdowns(); setHlShadeDropdownOpen(!hlShadeDropdownOpen); }}
-                className="w-full py-3.5 px-4 rounded-2xl bg-zinc-100 text-right font-medium text-zinc-800 hover:bg-zinc-200 transition-colors flex items-center justify-between"
-              >
-                <svg
-                  className={`w-4 h-4 text-zinc-400 transition-transform ${hlShadeDropdownOpen ? "rotate-180" : ""}`}
-                  fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-                <span className="text-base">
-                  <span className="font-bold">{highLiftShade}</span>
-                  <span className="text-zinc-500 me-2">
-                    {" "}{HIGH_LIFT_SHADES.find((s) => s.code === highLiftShade)?.nameHe}
-                  </span>
-                </span>
-              </button>
-              {hlShadeDropdownOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="absolute z-50 mt-2 w-full bg-white rounded-2xl shadow-xl border border-zinc-200 p-3 max-h-64 overflow-y-auto"
-                >
-                  <div className="space-y-1">
-                    {HIGH_LIFT_SHADES.map((shade) => (
-                      <button
-                        key={shade.code}
-                        type="button"
-                        onClick={() => { setHighLiftShade(shade.code); setHlShadeDropdownOpen(false); }}
-                        className={`w-full py-2.5 px-3 rounded-xl text-sm font-medium transition-all flex items-center justify-between ${
-                          shade.code === highLiftShade
-                            ? "bg-zinc-900 text-white"
-                            : "bg-zinc-50 text-zinc-700 hover:bg-zinc-200"
-                        }`}
-                      >
-                        <span className={shade.code === highLiftShade ? "text-zinc-300" : "text-zinc-400"}>
-                          {shade.nameHe}
-                        </span>
-                        <span className="font-bold">{shade.code}</span>
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-              מפתח (דוולופר)
-            </Label>
-            <ToggleGroup
-              options={HIGH_LIFT_DEVELOPERS.map((d) => ({ value: d, label: d }))}
-              value={highLiftDeveloper}
-              onChange={setHighLiftDeveloper}
+            <ShadeDropdown
+              shades={MAJIREL_SHADES}
+              value={targetShade}
+              onChange={(s) => { setTargetShade(s); setShadeDropdownOpen(false); }}
+              open={shadeDropdownOpen}
+              onToggle={() => { closeAllDropdowns(); setShadeDropdownOpen(!shadeDropdownOpen); }}
             />
           </div>
 
-          {/* ─── אורכים ─── */}
+          {/* ─── אורכים וקצוות ─── */}
           <div className="flex items-center gap-3 pt-2">
             <div className="flex-1 h-px bg-zinc-200" />
-            <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">רענון אורכים</span>
+            <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">אורכים וקצוות</span>
             <div className="flex-1 h-px bg-zinc-200" />
           </div>
 
@@ -577,6 +499,10 @@ export default function ConsultationForm({ onCalculate }: Props) {
               onValueChange={(v) => setCurrentEndsLevel(Array.isArray(v) ? v[0] : v)}
               className="py-2"
             />
+            <div dir="ltr" className="flex justify-between text-[10px] text-zinc-400 px-1">
+              <span>1 שחור</span>
+              <span>10 בלונד בהיר ביותר</span>
+            </div>
           </div>
 
           <div className="space-y-3">
@@ -617,24 +543,23 @@ export default function ConsultationForm({ onCalculate }: Props) {
               onToggle={() => { closeAllDropdowns(); setEndsShadeDropdownOpen(!endsShadeDropdownOpen); }}
             />
           </div>
-
         </>
       )}
 
       {/* ═══════════ BLEACH MODE ═══════════ */}
       {serviceType === "bleach" && (
         <>
-          {/* ─── הבהרה ─── */}
+          {/* ─── אבחון ─── */}
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-zinc-200" />
-            <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">הבהרה — Blond Studio</span>
+            <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">אבחון</span>
             <div className="flex-1 h-px bg-zinc-200" />
           </div>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-                בסיס טבעי
+                בסיס טבעי / רמה נוכחית
               </Label>
               <LevelDisplay level={naturalRoot} />
             </div>
@@ -650,36 +575,24 @@ export default function ConsultationForm({ onCalculate }: Props) {
             </div>
           </div>
 
+          {/* ─── יעד ─── */}
+          <div className="flex items-center gap-3 pt-2">
+            <div className="flex-1 h-px bg-zinc-200" />
+            <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">גוון יעד סופי</span>
+            <div className="flex-1 h-px bg-zinc-200" />
+          </div>
+
           <div className="space-y-3">
             <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-              מוצר הבהרה
+              לאיזה גוון רוצה להגיע (Majirel)
             </Label>
-            <div className="space-y-1.5">
-              {BLOND_STUDIO_PRODUCTS.map((prod) => {
-                const active = prod.code === bleachProduct;
-                return (
-                  <button
-                    key={prod.code}
-                    type="button"
-                    onClick={() => {
-                      setBleachProduct(prod.code);
-                      const newDevs = prod.developerType === "nutri" ? BLEACH_DEVELOPERS_NUTRI : BLEACH_DEVELOPERS_OIL;
-                      if (!newDevs.includes(bleachDeveloper)) setBleachDeveloper(newDevs[0]);
-                    }}
-                    className={`w-full py-3 px-4 rounded-2xl text-sm font-medium transition-all flex items-center justify-between ${
-                      active
-                        ? "bg-zinc-900 text-white shadow-lg"
-                        : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
-                    }`}
-                  >
-                    <span className={`text-xs ${active ? "text-zinc-400" : "text-zinc-400"}`}>
-                      {prod.maxLift}
-                    </span>
-                    <span>{prod.nameHe}</span>
-                  </button>
-                );
-              })}
-            </div>
+            <ShadeDropdown
+              shades={MAJIREL_SHADES}
+              value={targetShade}
+              onChange={(s) => { setTargetShade(s); setShadeDropdownOpen(false); }}
+              open={shadeDropdownOpen}
+              onToggle={() => { closeAllDropdowns(); setShadeDropdownOpen(!shadeDropdownOpen); }}
+            />
           </div>
 
           <div className="space-y-3">
@@ -692,53 +605,11 @@ export default function ConsultationForm({ onCalculate }: Props) {
               onChange={(v) => setBleachTechnique(v as BleachTechnique)}
             />
           </div>
-
-          <div className="space-y-3">
-            <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-              מפתח (דוולופר)
-            </Label>
-            <ToggleGroup
-              options={availableBleachDevs.map((d) => ({ value: d, label: d }))}
-              value={bleachDeveloper}
-              onChange={setBleachDeveloper}
-            />
-          </div>
-
-          {/* ─── שטיפה (טונר) ─── */}
-          <div className="flex items-center gap-3 pt-2">
-            <div className="flex-1 h-px bg-zinc-200" />
-            <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">שטיפה לאחר הבהרה</span>
-            <div className="flex-1 h-px bg-zinc-200" />
-          </div>
-
-          <div className="space-y-3">
-            <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-              קו מוצרים לשטיפה
-            </Label>
-            <ToggleGroup
-              options={TONER_LINE_OPTIONS.map((t) => ({ value: t.value, label: t.label }))}
-              value={tonerProductLine}
-              onChange={setTonerProductLine}
-            />
-          </div>
-
-          <div className="space-y-3">
-            <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-              גוון שטיפה
-            </Label>
-            <ShadeDropdown
-              shades={TONER_SHADES}
-              value={tonerShade}
-              onChange={(s) => { setTonerShade(s); setTonerShadeDropdownOpen(false); }}
-              open={tonerShadeDropdownOpen}
-              onToggle={() => { closeAllDropdowns(); setTonerShadeDropdownOpen(!tonerShadeDropdownOpen); }}
-            />
-          </div>
         </>
       )}
 
       {/* ═══════════ COMMON — כללי ═══════════ */}
-      {serviceType !== "bleach" && (
+      {(
         <>
           <div className="flex items-center gap-3 pt-2">
             <div className="flex-1 h-px bg-zinc-200" />

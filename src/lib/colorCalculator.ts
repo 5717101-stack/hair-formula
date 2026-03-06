@@ -287,21 +287,51 @@ function calculateMajirel(input: ConsultationInput): FormulaResult {
   return { serviceType: "majirel", roots, ends, input, createdAt: new Date().toISOString() };
 }
 
+function recommendHighLiftShade(targetShade: string): { code: string; nameHe: string; reason: string } {
+  const tonePart = targetShade.split(".")[1] || "0";
+  const t1 = tonePart[0] || "0";
+  const t2 = tonePart[1] || "";
+
+  const find = (code: string) => HIGH_LIFT_SHADES.find((s) => s.code === code)!;
+
+  if (t1 === "1" && t2 === "2") return { ...find("Ash Violet"), reason: "גוון אפור-פנינה → Ash Violet לנטרול כפול" };
+  if (t1 === "1" && t2 === "3") return { ...find("Beige"), reason: "גוון בז׳ (אפור-זהב) → Beige" };
+  if (t1 === "1") return { ...find("Ash"), reason: "גוון קר/אפור → Ash לנטרול חמימות" };
+  if (t1 === "2" && t2 === "1") return { ...find("Violet Ash"), reason: "גוון פנינה-אפור → Violet Ash" };
+  if (t1 === "2") return { ...find("Violet"), reason: "גוון פנינה/סגול → Violet לנטרול צהוב" };
+  if (t1 === "3" && t2 === "1") return { ...find("Beige"), reason: "גוון זהב-אפור → Beige" };
+  if (t1 === "3") return { ...find("Beige"), reason: "גוון זהב/חם → Beige" };
+  if (["4", "5", "6"].includes(t1)) return { ...find("Gold Irisé"), reason: "גוון חם (נחושת/מהגוני/אדום) → Gold Irisé" };
+  if (t1 === "8") return { ...find("Beige"), reason: "גוון מוקה → Beige" };
+  return { ...find("Neutral"), reason: "גוון טבעי → Neutral לתוצאה נקייה ומאוזנת" };
+}
+
 function calculateHighLift(input: ConsultationInput): FormulaResult {
-  const shade = HIGH_LIFT_SHADES.find((s) => s.code === input.highLiftShade);
+  const targetLevel = parseTargetLevel(input.targetShade);
+  const liftNeeded = targetLevel - input.naturalRootBase;
   const notes: string[] = [];
 
   if (input.naturalRootBase < 5) {
-    notes.push("⚠️ High Lift מתאים לבסיס טבעי 5 ומעלה. לבסיסים כהים יותר מומלץ הבהרה.");
+    notes.push("⚠️ High Lift מתאים לבסיס טבעי 5 ומעלה. לבסיסים כהים יותר מומלץ הבהרה (Blond Studio).");
+  }
+  if (liftNeeded > 4.5) {
+    notes.push("⚠️ High Lift מרים עד 4.5 רמות. להרמה גדולה יותר מומלץ הבהרה (Blond Studio).");
   }
   if (input.grayPercentage === "50-100") {
-    notes.push("High Lift מכסה עד 30% שיער אפור בלבד. לכיסוי אפור מלא מומלץ Majirel.");
+    notes.push("High Lift מכסה עד 30% שיער אפור. לכיסוי אפור מלא מומלץ Majirel.");
+  } else if (input.grayPercentage === "30-50") {
+    notes.push("High Lift מכסה עד 30% שיער אפור. שימי לב — עלול לא להספיק.");
   }
 
+  const rec = recommendHighLiftShade(input.targetShade);
+  const developer = liftNeeded >= 3 ? "40 Vol (12%)" : "30 Vol (9%)";
+  notes.push(`גוון ${rec.code} (${rec.nameHe}): ${rec.reason}`);
+  notes.push(`מפתח ${developer}: ${liftNeeded >= 3 ? "הרמה של 3+ רמות דורשת 40 Vol" : "הרמה של עד 2 רמות — 30 Vol מספיק"}`);
+
   const highLift: HighLiftFormula = {
-    shade: input.highLiftShade,
-    shadeNameHe: shade?.nameHe || input.highLiftShade,
-    developerVolume: input.highLiftDeveloper,
+    shade: rec.code,
+    shadeNameHe: rec.nameHe,
+    developerVolume: developer,
     mixingRatio: "1 : 2",
     processingTime: "50 דקות",
     notes,
@@ -347,30 +377,86 @@ function buildEndsFormula(input: ConsultationInput, isHighLift: boolean): EndsFo
   };
 }
 
+function recommendBleachProduct(liftNeeded: number): BlondStudioProduct {
+  if (liftNeeded <= 5) return BLOND_STUDIO_PRODUCTS.find((p) => p.code === "clay")!;
+  if (liftNeeded <= 6) return BLOND_STUDIO_PRODUCTS.find((p) => p.code === "studio8")!;
+  if (liftNeeded <= 7) return BLOND_STUDIO_PRODUCTS.find((p) => p.code === "bonder9")!;
+  return BLOND_STUDIO_PRODUCTS.find((p) => p.code === "studio9")!;
+}
+
+function recommendBleachDeveloper(product: BlondStudioProduct, liftNeeded: number): string {
+  if (product.developerType === "oil") {
+    return liftNeeded <= 4 ? "20 Vol (6%)" : "30 Vol (9%)";
+  }
+  if (liftNeeded <= 3) return "20 Vol (6%)";
+  if (liftNeeded <= 5) return "30 Vol (9%)";
+  return "40 Vol (12%)";
+}
+
+function findClosestTonerShade(desiredShade: string): string {
+  const desiredLevel = Math.round(parseFloat(desiredShade));
+  const desiredTone = desiredShade.split(".")[1] || "01";
+
+  const exact = TONER_SHADES.find((s) => s === desiredShade);
+  if (exact) return exact;
+
+  const sameLevelShades = TONER_SHADES.filter((s) => Math.round(parseFloat(s)) === desiredLevel);
+  if (sameLevelShades.length > 0) {
+    const firstTone = desiredTone[0] || "0";
+    const toneMatch = sameLevelShades.find((s) => (s.split(".")[1] || "")[0] === firstTone);
+    if (toneMatch) return toneMatch;
+    return sameLevelShades[0];
+  }
+
+  const adjacent = TONER_SHADES
+    .map((s) => ({ shade: s, diff: Math.abs(Math.round(parseFloat(s)) - desiredLevel) }))
+    .sort((a, b) => a.diff - b.diff);
+  return adjacent[0]?.shade || "9.01";
+}
+
 function calculateBleach(input: ConsultationInput): FormulaResult {
-  const product = BLOND_STUDIO_PRODUCTS.find((p) => p.code === input.bleachProduct);
-  const technique = BLEACH_TECHNIQUES.find((t) => t.code === input.bleachTechnique);
+  const targetLevel = parseTargetLevel(input.targetShade);
+  const bleachTargetLevel = Math.min(10, targetLevel + 1);
+  const liftNeeded = Math.max(1, bleachTargetLevel - input.naturalRootBase);
+
+  const product = recommendBleachProduct(liftNeeded);
+  const developer = recommendBleachDeveloper(product, liftNeeded);
+  const technique = BLEACH_TECHNIQUES.find((t) => t.code === input.bleachTechnique)!;
+
+  const notes: string[] = [];
+  notes.push(`נדרשת הרמה של ${liftNeeded} רמות (מ-${input.naturalRootBase} ליעד ${bleachTargetLevel}) → ${product.nameHe}`);
+  if (product.code === "bonder9") {
+    notes.push("נבחר מוצר עם Bonder Inside להגנה מקסימלית על סיב השיער");
+  } else if (product.code === "clay") {
+    notes.push("נבחר Clay — ללא אמוניה, עדין לשיער. מתאים להרמה בינונית");
+  }
+  notes.push(`מפתח ${developer}: ${liftNeeded <= 4 ? "הרמה בינונית — מפתח נמוך מספיק" : "הרמה גבוהה — נדרש מפתח חזק"}`);
 
   const bleach: BleachFormula = {
-    product: product?.name || input.bleachProduct,
-    productNameHe: product?.nameHe || input.bleachProduct,
-    technique: technique?.code || input.bleachTechnique,
-    techniqueHe: technique?.nameHe || input.bleachTechnique,
-    developerVolume: input.bleachDeveloper,
-    mixingRatio: technique?.ratio || "1 : 1.5",
+    product: product.name,
+    productNameHe: product.nameHe,
+    technique: technique.code,
+    techniqueHe: technique.nameHe,
+    developerVolume: developer,
+    mixingRatio: technique.ratio,
     processingTime: "עד 50 דקות",
-    maxLift: product?.maxLift || "",
+    maxLift: product.maxLift,
+    notes,
   };
 
-  const tonerLine = input.tonerProductLine as TonerProductLine;
-  const tonerSpec = TONER_PRODUCT_SPECS[tonerLine] || TONER_PRODUCT_SPECS["Dia Light"];
+  const tonerShade = findClosestTonerShade(input.targetShade);
+  const tonerSpec = TONER_PRODUCT_SPECS["Dia Light"];
+  const tonerNote = tonerShade !== input.targetShade
+    ? `הגוון הקרוב ביותר ב-Dia Light לגוון היעד ${input.targetShade}`
+    : null;
 
   const toner: TonerFormula = {
-    productLine: input.tonerProductLine,
-    shade: input.tonerShade,
+    productLine: "Dia Light",
+    shade: tonerShade,
     developerVolume: tonerSpec.developerVolume,
     mixingRatio: tonerSpec.mixingRatio,
     processingTime: tonerSpec.processingTime,
+    note: tonerNote,
   };
 
   return { serviceType: "bleach", bleach, toner, input, createdAt: new Date().toISOString() };

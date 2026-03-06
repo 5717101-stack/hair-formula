@@ -196,13 +196,27 @@ export default function FormulaCards({ result, onSave }: Props) {
             <InfoRow label="יחס אבקה : מפתח" value={result.bleach.mixingRatio} />
             <InfoRow label="זמן עיבוד" value={result.bleach.processingTime} icon={<Clock className="w-3.5 h-3.5" />} />
           </div>
+          {result.bleach.notes && result.bleach.notes.length > 0 && (
+            <div className="mt-4 space-y-2">
+              {result.bleach.notes.map((note, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  className="p-3 bg-yellow-50 rounded-2xl border border-yellow-100"
+                >
+                  <p className="text-xs text-yellow-800 leading-relaxed">{note}</p>
+                </motion.div>
+              ))}
+            </div>
+          )}
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            className="mt-4 p-3.5 bg-sky-50 rounded-2xl border border-sky-100"
+            className="mt-3 p-3.5 bg-sky-50 rounded-2xl border border-sky-100"
           >
             <p className="text-xs text-sky-700 leading-relaxed">
-              ⏱ לבדוק כל 10 דקות. לא להשתמש בחום. לעצור כשמגיעים לרמת הבהרה הרצויה.
+              לבדוק כל 10 דקות. לא להשתמש בחום. לעצור כשמגיעים לרמת הבהרה הרצויה.
             </p>
           </motion.div>
         </motion.div>
@@ -231,13 +245,22 @@ export default function FormulaCards({ result, onSave }: Props) {
             <InfoRow label="יחס צבע : מפתח" value={result.toner.mixingRatio} />
             <InfoRow label="זמן עיבוד" value={result.toner.processingTime} icon={<Clock className="w-3.5 h-3.5" />} />
           </div>
+          {result.toner.note && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="mt-4 p-3.5 bg-emerald-50 rounded-2xl border border-emerald-100"
+            >
+              <p className="text-xs text-emerald-700 leading-relaxed">{result.toner.note}</p>
+            </motion.div>
+          )}
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            className="mt-4 p-3.5 bg-violet-50 rounded-2xl border border-violet-100"
+            className="mt-3 p-3.5 bg-violet-50 rounded-2xl border border-violet-100"
           >
             <p className="text-xs text-violet-700 leading-relaxed">
-              💡 Dia Light: pH חומצי — סוגר קוטיקולות, נותן ברק ומרקם חלק לאחר הבהרה. 5 דקות לברק, 10 לגיוון, 20 לעומק.
+              Dia Light: pH חומצי — סוגר קוטיקולות, נותן ברק ומרקם חלק לאחר הבהרה. 5 דקות לברק, 10 לגיוון, 20 לעומק.
             </p>
           </motion.div>
         </motion.div>
