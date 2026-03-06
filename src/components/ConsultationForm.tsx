@@ -22,7 +22,6 @@ import type {
   GrayRange,
   HairThickness,
   ToneCode,
-  EndsProductLine,
   ServiceType,
   BleachTechnique,
 } from "@/lib/types";
@@ -43,12 +42,6 @@ const THICKNESS_OPTIONS: { value: HairThickness; label: string }[] = [
   { value: "fine", label: "דק" },
   { value: "normal", label: "רגיל" },
   { value: "thick", label: "עבה" },
-];
-
-const PRODUCT_LINE_OPTIONS: { value: EndsProductLine; label: string }[] = [
-  { value: "Majirel", label: "Majirel" },
-  { value: "Dia Light", label: "Dia Light" },
-  { value: "Dia Color", label: "Dia Color" },
 ];
 
 const TONER_LINE_OPTIONS: { value: string; label: string }[] = [
@@ -199,7 +192,6 @@ export default function ConsultationForm({ onCalculate }: Props) {
   const [targetShade, setTargetShade] = useState("7.0");
   const [neutralize, setNeutralize] = useState(false);
   const [desiredEndsTone, setDesiredEndsTone] = useState("7.0");
-  const [endsProductLine, setEndsProductLine] = useState<EndsProductLine>("Dia Light");
 
   // High Lift mode
   const [highLiftShade, setHighLiftShade] = useState("Neutral");
@@ -249,7 +241,7 @@ export default function ConsultationForm({ onCalculate }: Props) {
       targetShade,
       neutralize,
       desiredEndsTone,
-      endsProductLine,
+      endsProductLine: "Dia Light",
       highLiftShade,
       highLiftDeveloper,
       bleachProduct,
@@ -459,16 +451,6 @@ export default function ConsultationForm({ onCalculate }: Props) {
             />
           </div>
 
-          <div className="space-y-3">
-            <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-              קו מוצרים לאורכים
-            </Label>
-            <ToggleGroup
-              options={PRODUCT_LINE_OPTIONS}
-              value={endsProductLine}
-              onChange={setEndsProductLine}
-            />
-          </div>
         </>
       )}
 
@@ -636,16 +618,6 @@ export default function ConsultationForm({ onCalculate }: Props) {
             />
           </div>
 
-          <div className="space-y-3">
-            <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-              קו מוצרים לאורכים
-            </Label>
-            <ToggleGroup
-              options={PRODUCT_LINE_OPTIONS}
-              value={endsProductLine}
-              onChange={setEndsProductLine}
-            />
-          </div>
         </>
       )}
 

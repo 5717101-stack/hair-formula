@@ -266,11 +266,23 @@ export default function FormulaCards({ result, onSave }: Props) {
             <InfoRow label="יחס צבע : מפתח" value={result.ends.mixingRatio} />
             <InfoRow label="זמן עיבוד" value={result.ends.processingTime} icon={<Clock className="w-3.5 h-3.5" />} />
           </div>
+          {result.ends.recommendationNote && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="mt-4 p-3.5 bg-emerald-50 rounded-2xl border border-emerald-100"
+            >
+              <div className="flex gap-2">
+                <FlaskConical className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-emerald-700 leading-relaxed">{result.ends.recommendationNote}</p>
+              </div>
+            </motion.div>
+          )}
           {result.ends.toneNote && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
-              className="mt-4 p-3.5 bg-sky-50 rounded-2xl border border-sky-100"
+              className="mt-3 p-3.5 bg-sky-50 rounded-2xl border border-sky-100"
             >
               <div className="flex gap-2">
                 <Palette className="w-4 h-4 text-sky-600 mt-0.5 flex-shrink-0" />

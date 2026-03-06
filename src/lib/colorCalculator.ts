@@ -185,6 +185,49 @@ function isWarmTone(tone: string): boolean {
   return ["3", "4", "5", "6"].includes(tone);
 }
 
+// ─── Auto-recommend product line for ends ───
+
+interface EndsRecommendation {
+  productLine: EndsProductLine;
+  recommendationNote: string;
+}
+
+function recommendEndsProduct(
+  currentEndsLevel: number,
+  desiredEndsTone: string,
+  grayPercentage: ConsultationInput["grayPercentage"],
+  isHighLift: boolean
+): EndsRecommendation {
+  if (isHighLift) {
+    return {
+      productLine: "Dia Light",
+      recommendationNote: "המלצת L'Oréal: Dia Light לרענון אורכים לאחר High Lift — pH חומצי, סוגר קוטיקולות ונותן ברק מקסימלי",
+    };
+  }
+
+  const desiredLevel = Math.round(parseFloat(desiredEndsTone));
+  const levelDiff = desiredLevel - currentEndsLevel;
+
+  if (levelDiff > 0) {
+    return {
+      productLine: "Majirel",
+      recommendationNote: `האורכים צריכים הרמה של ${levelDiff} רמות — רק צבע קבוע (Majirel) יכול להבהיר. מפתח 20 Vol`,
+    };
+  }
+
+  if (grayPercentage === "50-100") {
+    return {
+      productLine: "Dia Color",
+      recommendationNote: "שיער אפור מעל 50% באורכים — Dia Color אלקליני, נותן כיסוי עד 70% ו-deposit עמוק יותר",
+    };
+  }
+
+  return {
+    productLine: "Dia Light",
+    recommendationNote: "Dia Light — רענון וברק. pH חומצי, סוגר קוטיקולות, 30% יותר לחות, ללא הרמה. אידיאלי לשיער שנצבע בעבר",
+  };
+}
+
 // ─── Main Calculator ───
 
 function calculateMajirel(input: ConsultationInput): FormulaResult {
@@ -239,30 +282,7 @@ function calculateMajirel(input: ConsultationInput): FormulaResult {
     processingTime: rootsProcessingTime,
   };
 
-  const currentToneHe = TONE_MAP[input.currentEndsTone]?.nameHe || "טבעי";
-  const refreshShade = input.desiredEndsTone;
-  const productLine = input.endsProductLine;
-  const spec = PRODUCT_LINE_SPECS[productLine];
-
-  const desiredTonePart = refreshShade.split(".")[1] || "0";
-  const desiredToneHe = TONE_MAP[desiredTonePart as ToneCode]?.nameHe || desiredTonePart;
-  let toneNote: string | null = null;
-
-  const desiredFamily = desiredTonePart[0] || "0";
-  if (isWarmTone(input.currentEndsTone) && !isWarmTone(desiredFamily)) {
-    toneNote = `האורכים כרגע ${currentToneHe} — מומלץ גוון ${desiredToneHe} לנטרול החמימות`;
-  } else if (input.currentEndsTone === desiredFamily) {
-    toneNote = `רענון גוון — שמירה על ${desiredToneHe}`;
-  }
-
-  const ends: EndsFormula = {
-    refreshShade,
-    productLine,
-    developerVolume: spec.developerVolume,
-    mixingRatio: spec.mixingRatio,
-    processingTime: spec.processingTime,
-    toneNote,
-  };
+  const ends = buildEndsFormula(input, false);
 
   return { serviceType: "majirel", roots, ends, input, createdAt: new Date().toISOString() };
 }
@@ -287,10 +307,24 @@ function calculateHighLift(input: ConsultationInput): FormulaResult {
     notes,
   };
 
+  const ends = buildEndsFormula(input, true);
+
+  return { serviceType: "highLift", highLift, ends, input, createdAt: new Date().toISOString() };
+}
+
+function buildEndsFormula(input: ConsultationInput, isHighLift: boolean): EndsFormula {
   const currentToneHe = TONE_MAP[input.currentEndsTone]?.nameHe || "טבעי";
   const refreshShade = input.desiredEndsTone;
-  const productLine = input.endsProductLine;
+
+  const rec = recommendEndsProduct(
+    input.currentEndsLevel,
+    input.desiredEndsTone,
+    input.grayPercentage,
+    isHighLift
+  );
+  const productLine = rec.productLine;
   const spec = PRODUCT_LINE_SPECS[productLine];
+
   const desiredTonePart = refreshShade.split(".")[1] || "0";
   const desiredToneHe = TONE_MAP[desiredTonePart as ToneCode]?.nameHe || desiredTonePart;
   let toneNote: string | null = null;
@@ -302,16 +336,15 @@ function calculateHighLift(input: ConsultationInput): FormulaResult {
     toneNote = `רענון גוון — שמירה על ${desiredToneHe}`;
   }
 
-  const ends: EndsFormula = {
+  return {
     refreshShade,
     productLine,
     developerVolume: spec.developerVolume,
     mixingRatio: spec.mixingRatio,
     processingTime: spec.processingTime,
     toneNote,
+    recommendationNote: rec.recommendationNote,
   };
-
-  return { serviceType: "highLift", highLift, ends, input, createdAt: new Date().toISOString() };
 }
 
 function calculateBleach(input: ConsultationInput): FormulaResult {

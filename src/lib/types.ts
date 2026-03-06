@@ -68,6 +68,7 @@ export interface EndsFormula {
   mixingRatio: string;
   processingTime: string;
   toneNote: string | null;
+  recommendationNote: string | null;
 }
 
 export interface HighLiftFormula {
