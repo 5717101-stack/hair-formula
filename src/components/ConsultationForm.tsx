@@ -311,7 +311,7 @@ export default function ConsultationForm({ onCalculate }: Props) {
               onValueChange={(v) => setNaturalRoot(Array.isArray(v) ? v[0] : v)}
               className="py-2"
             />
-            <div className="flex justify-between text-[10px] text-zinc-400 px-1">
+            <div dir="ltr" className="flex justify-between text-[10px] text-zinc-400 px-1">
               <span>1 שחור</span>
               <span>10 בלונד בהיר ביותר</span>
             </div>
@@ -406,7 +406,7 @@ export default function ConsultationForm({ onCalculate }: Props) {
               onValueChange={(v) => setCurrentEndsLevel(Array.isArray(v) ? v[0] : v)}
               className="py-2"
             />
-            <div className="flex justify-between text-[10px] text-zinc-400 px-1">
+            <div dir="ltr" className="flex justify-between text-[10px] text-zinc-400 px-1">
               <span>1 שחור</span>
               <span>10 בלונד בהיר ביותר</span>
             </div>
@@ -476,7 +476,7 @@ export default function ConsultationForm({ onCalculate }: Props) {
               onValueChange={(v) => setNaturalRoot(Array.isArray(v) ? v[0] : v)}
               className="py-2"
             />
-            <div className="flex justify-between text-[10px] text-zinc-400 px-1">
+            <div dir="ltr" className="flex justify-between text-[10px] text-zinc-400 px-1">
               <span>1 שחור</span>
               <span>10 בלונד בהיר ביותר</span>
             </div>
@@ -644,7 +644,7 @@ export default function ConsultationForm({ onCalculate }: Props) {
               onValueChange={(v) => setNaturalRoot(Array.isArray(v) ? v[0] : v)}
               className="py-2"
             />
-            <div className="flex justify-between text-[10px] text-zinc-400 px-1">
+            <div dir="ltr" className="flex justify-between text-[10px] text-zinc-400 px-1">
               <span>1 שחור</span>
               <span>10 בלונד בהיר ביותר</span>
             </div>
