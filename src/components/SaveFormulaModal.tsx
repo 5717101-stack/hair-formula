@@ -69,7 +69,7 @@ export default function SaveFormulaModal({
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            transition={{ type: "spring" as const, stiffness: 300, damping: 30 }}
             className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
@@ -79,7 +79,7 @@ export default function SaveFormulaModal({
                   <UserPlus className="w-5 h-5 text-zinc-600" />
                 </div>
                 <h2 className="text-lg font-semibold text-zinc-900">
-                  Save to Client
+                  שמירה ללקוחה
                 </h2>
               </div>
               <button
@@ -93,14 +93,14 @@ export default function SaveFormulaModal({
             <div className="space-y-5">
               <div className="space-y-2">
                 <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-                  Client Name
+                  שם לקוחה
                 </Label>
                 <input
                   ref={inputRef}
                   type="text"
                   value={clientName}
                   onChange={(e) => handleNameChange(e.target.value)}
-                  placeholder="Enter client name..."
+                  placeholder="הכניסי שם לקוחה..."
                   className="w-full py-3.5 px-4 rounded-2xl bg-zinc-100 text-zinc-800 placeholder:text-zinc-400 outline-none focus:ring-2 focus:ring-zinc-300 transition-all text-base"
                 />
                 {suggestions.length > 0 && (
@@ -124,15 +124,15 @@ export default function SaveFormulaModal({
 
               <div className="space-y-2">
                 <Label className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">
-                  Stylist Notes
-                  <span className="ml-1 normal-case tracking-normal text-zinc-300">
-                    (optional)
+                  הערות
+                  <span className="ms-1 normal-case tracking-normal text-zinc-300">
+                    (לא חובה)
                   </span>
                 </Label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Hair condition, toning adjustments..."
+                  placeholder="מצב השיער, התאמות גוון..."
                   rows={3}
                   className="w-full py-3 px-4 rounded-2xl bg-zinc-100 text-zinc-800 placeholder:text-zinc-400 outline-none focus:ring-2 focus:ring-zinc-300 transition-all text-sm resize-none"
                 />
@@ -143,8 +143,8 @@ export default function SaveFormulaModal({
                 disabled={!clientName.trim()}
                 className="w-full h-13 rounded-2xl text-base font-semibold bg-zinc-900 hover:bg-zinc-800 transition-all disabled:opacity-40"
               >
-                <Check className="w-5 h-5 mr-2" />
-                Save Formula
+                <Check className="w-5 h-5 me-2" />
+                שמור פורמולה
               </Button>
             </div>
           </motion.div>

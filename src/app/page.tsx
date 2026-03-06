@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Scissors, Users, FlaskConical, ArrowLeft } from "lucide-react";
+import { Scissors, Users, FlaskConical, ArrowRight } from "lucide-react";
 import ConsultationForm from "@/components/ConsultationForm";
 import FormulaCards from "@/components/FormulaCards";
 import SaveFormulaModal from "@/components/SaveFormulaModal";
@@ -33,9 +33,6 @@ export default function Home() {
       <header className="sticky top-0 z-40 bg-zinc-50/80 backdrop-blur-xl border-b border-zinc-200/60">
         <div className="max-w-lg mx-auto px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-zinc-900 flex items-center justify-center">
-              <Scissors className="w-4.5 h-4.5 text-white" />
-            </div>
             <div>
               <h1 className="text-base font-bold tracking-tight">
                 Hair Formula
@@ -43,6 +40,9 @@ export default function Home() {
               <p className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider">
                 L&apos;Or&eacute;al Professional
               </p>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-zinc-900 flex items-center justify-center">
+              <Scissors className="w-4.5 h-4.5 text-white" />
             </div>
           </div>
         </div>
@@ -55,17 +55,17 @@ export default function Home() {
             result ? (
               <motion.div
                 key="results"
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
+                exit={{ opacity: 0, x: 20 }}
                 className="space-y-5"
               >
                 <button
                   onClick={handleBack}
                   className="flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-800 transition-colors"
                 >
-                  <ArrowLeft className="w-4 h-4" />
-                  New Consultation
+                  ייעוץ חדש
+                  <ArrowRight className="w-4 h-4" />
                 </button>
                 <FormulaCards
                   result={result}
@@ -75,9 +75,9 @@ export default function Home() {
             ) : (
               <motion.div
                 key="form"
-                initial={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
+                exit={{ opacity: 0, x: -20 }}
               >
                 <ConsultationForm onCalculate={handleCalculate} />
               </motion.div>
@@ -114,7 +114,7 @@ export default function Home() {
               }`}
             />
             <span className="text-[10px] font-semibold uppercase tracking-wider">
-              Formula
+              פורמולה
             </span>
           </button>
           <button
@@ -134,11 +134,10 @@ export default function Home() {
               }`}
             />
             <span className="text-[10px] font-semibold uppercase tracking-wider">
-              Clients
+              לקוחות
             </span>
           </button>
         </div>
-        {/* Safe area padding for iOS */}
         <div className="h-[env(safe-area-inset-bottom)]" />
       </nav>
 

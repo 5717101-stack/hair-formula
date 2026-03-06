@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Droplets, Sun, Clock, FlaskConical, AlertCircle, Save } from "lucide-react";
+import { Droplets, Sun, Clock, FlaskConical, AlertCircle, ShieldCheck, Save, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import type { FormulaResult } from "@/lib/types";
@@ -19,7 +19,7 @@ function InfoRow({ label, value, icon }: InfoRowProps) {
         {icon}
         {label}
       </span>
-      <span className="text-sm font-semibold text-zinc-800 text-right max-w-[55%]">
+      <span className="text-sm font-semibold text-zinc-800 text-start max-w-[55%]">
         {value}
       </span>
     </div>
@@ -69,7 +69,7 @@ export default function FormulaCards({ result, onSave }: Props) {
             <Droplets className="w-5 h-5 text-rose-500" />
           </div>
           <div>
-            <h3 className="font-semibold text-zinc-900">Roots Formula</h3>
+            <h3 className="font-semibold text-zinc-900">פורמולת שורשים</h3>
             <p className="text-xs text-zinc-400">Zone 1</p>
           </div>
         </div>
@@ -78,34 +78,72 @@ export default function FormulaCards({ result, onSave }: Props) {
 
         <div className="space-y-0.5">
           <InfoRow
-            label="Color Line"
+            label="קו צבע"
             value={roots.colorLine}
             icon={<FlaskConical className="w-3.5 h-3.5" />}
           />
-          <InfoRow label="Target Shade" value={roots.targetShade} />
+          <InfoRow label="גוון יעד" value={roots.targetShade} />
           {roots.baseShade && (
-            <InfoRow label="Base Shade (Gray)" value={roots.baseShade} />
+            <InfoRow label="בסיס (שיער אפור)" value={roots.baseShade} />
           )}
           {roots.mixRatio && (
-            <InfoRow label="Shade Mix" value={roots.mixRatio} />
+            <InfoRow label="ערבוב גוונים" value={roots.mixRatio} />
           )}
-          <InfoRow label="Developer" value={roots.developerVolume} />
+          <InfoRow label="מפתח (דוולופר)" value={roots.developerVolume} />
+          <InfoRow label="יחס צבע : מפתח" value={roots.mixingRatio} />
           <InfoRow
-            label="Color : Developer"
-            value={roots.mixingRatio}
-          />
-          <InfoRow
-            label="Processing Time"
+            label="זמן עיבוד"
             value={roots.processingTime}
             icon={<Clock className="w-3.5 h-3.5" />}
           />
         </div>
 
+        {/* Underlying Pigment */}
+        {roots.underlyingPigment && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="mt-4 p-3.5 bg-orange-50 rounded-2xl border border-orange-100"
+          >
+            <div className="flex gap-3 items-center">
+              <div
+                className="w-7 h-7 rounded-full ring-2 ring-orange-200 flex-shrink-0"
+                style={{ backgroundColor: roots.underlyingPigment.color }}
+              />
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <Palette className="w-3.5 h-3.5 text-orange-600" />
+                  <p className="text-xs font-semibold text-orange-800">
+                    פיגמנט חם: {roots.underlyingPigment.pigmentHe}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Neutralization Note */}
+        {roots.neutralizationNote && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="mt-3 p-3.5 bg-violet-50 rounded-2xl border border-violet-100"
+          >
+            <div className="flex gap-2">
+              <ShieldCheck className="w-4 h-4 text-violet-600 mt-0.5 flex-shrink-0" />
+              <p className="text-xs text-violet-700 leading-relaxed">
+                {roots.neutralizationNote}
+              </p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Gray Coverage Note */}
         {roots.grayCoverageNote && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            className="mt-4 p-3.5 bg-amber-50 rounded-2xl border border-amber-100"
+            className="mt-3 p-3.5 bg-amber-50 rounded-2xl border border-amber-100"
           >
             <div className="flex gap-2">
               <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
@@ -127,8 +165,8 @@ export default function FormulaCards({ result, onSave }: Props) {
             <Sun className="w-5 h-5 text-emerald-500" />
           </div>
           <div>
-            <h3 className="font-semibold text-zinc-900">Ends Formula</h3>
-            <p className="text-xs text-zinc-400">Zones 2 & 3 — Color Refresh</p>
+            <h3 className="font-semibold text-zinc-900">פורמולת אורכים</h3>
+            <p className="text-xs text-zinc-400">Zones 2 & 3 — רענון צבע</p>
           </div>
         </div>
 
@@ -136,22 +174,34 @@ export default function FormulaCards({ result, onSave }: Props) {
 
         <div className="space-y-0.5">
           <InfoRow
-            label="Product Line"
+            label="קו מוצרים"
             value={ends.productLine}
             icon={<FlaskConical className="w-3.5 h-3.5" />}
           />
-          <InfoRow label="Refresh Shade" value={ends.refreshShade} />
-          <InfoRow label="Developer" value={ends.developerVolume} />
+          <InfoRow label="גוון רענון" value={ends.refreshShade} />
+          <InfoRow label="מפתח (דוולופר)" value={ends.developerVolume} />
+          <InfoRow label="יחס צבע : מפתח" value={ends.mixingRatio} />
           <InfoRow
-            label="Color : Developer"
-            value={ends.mixingRatio}
-          />
-          <InfoRow
-            label="Processing Time"
+            label="זמן עיבוד"
             value={ends.processingTime}
             icon={<Clock className="w-3.5 h-3.5" />}
           />
         </div>
+
+        {ends.toneNote && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="mt-4 p-3.5 bg-sky-50 rounded-2xl border border-sky-100"
+          >
+            <div className="flex gap-2">
+              <Palette className="w-4 h-4 text-sky-600 mt-0.5 flex-shrink-0" />
+              <p className="text-xs text-sky-700 leading-relaxed">
+                {ends.toneNote}
+              </p>
+            </div>
+          </motion.div>
+        )}
       </motion.div>
 
       {/* Save Button */}
@@ -161,8 +211,8 @@ export default function FormulaCards({ result, onSave }: Props) {
           variant="outline"
           className="w-full h-13 rounded-2xl text-sm font-semibold border-2 border-zinc-200 hover:bg-zinc-50 transition-all"
         >
-          <Save className="w-4 h-4 mr-2" />
-          Save Formula to Client Profile
+          <Save className="w-4 h-4 me-2" />
+          שמור פורמולה לפרופיל לקוחה
         </Button>
       </motion.div>
     </motion.div>

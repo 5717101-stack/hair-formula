@@ -2,13 +2,37 @@ export type GrayRange = "0-30" | "30-50" | "50-100";
 export type HairThickness = "fine" | "normal" | "thick";
 export type ColorLine = "majirel" | "inoa";
 
+export type ToneCode =
+  | "0"
+  | "1"
+  | "2"
+  | "3"
+  | "4"
+  | "5"
+  | "6"
+  | "7"
+  | "8";
+
 export interface ConsultationInput {
   naturalRootBase: number;
-  currentEndsColor: number;
+  currentEndsLevel: number;
+  currentEndsTone: ToneCode;
+  desiredEndsTone: ToneCode;
   targetShade: string;
   grayPercentage: GrayRange;
   hairThickness: HairThickness;
   colorLine: ColorLine;
+  neutralize: boolean;
+}
+
+export interface UnderlyingPigment {
+  level: number;
+  pigment: string;
+  pigmentHe: string;
+  color: string;
+  neutralizer: string;
+  neutralizerTone: string;
+  neutralizerHe: string;
 }
 
 export interface RootsFormula {
@@ -19,6 +43,8 @@ export interface RootsFormula {
   colorLine: string;
   mixingRatio: string;
   grayCoverageNote: string | null;
+  neutralizationNote: string | null;
+  underlyingPigment: UnderlyingPigment | null;
   processingTime: string;
 }
 
@@ -28,6 +54,7 @@ export interface EndsFormula {
   developerVolume: string;
   mixingRatio: string;
   processingTime: string;
+  toneNote: string | null;
 }
 
 export interface FormulaResult {

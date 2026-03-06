@@ -9,9 +9,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Hair Formula — Professional Color Calculator",
+  title: "Hair Formula — מחשבון פורמולות צבע",
   description:
-    "Precision L'Oréal hair color formula calculator for professional stylists. Calculate roots & ends formulas, manage client history.",
+    "מחשבון פורמולות צבע שיער מקצועי של לוריאל. חישוב פורמולת שורשים ואורכים, ניהול היסטוריית לקוחות.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -41,7 +41,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="he" dir="rtl">
       <head>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -50,7 +50,6 @@ export default function RootLayout({
           content="black-translucent"
         />
         <meta name="apple-mobile-web-app-title" content="Hair Formula" />
-        {/* iOS splash screens for common devices */}
         <link
           rel="apple-touch-startup-image"
           media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)"
