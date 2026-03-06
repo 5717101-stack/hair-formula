@@ -1,65 +1,156 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Scissors, Users, FlaskConical, ArrowLeft } from "lucide-react";
+import ConsultationForm from "@/components/ConsultationForm";
+import FormulaCards from "@/components/FormulaCards";
+import SaveFormulaModal from "@/components/SaveFormulaModal";
+import ClientHistory from "@/components/ClientHistory";
+import { calculateFormula } from "@/lib/colorCalculator";
+import type { ConsultationInput, FormulaResult } from "@/lib/types";
+
+type Tab = "formula" | "clients";
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState<Tab>("formula");
+  const [result, setResult] = useState<FormulaResult | null>(null);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [clientKey, setClientKey] = useState(0);
+
+  const handleCalculate = useCallback((input: ConsultationInput) => {
+    const formula = calculateFormula(input);
+    setResult(formula);
+  }, []);
+
+  const handleBack = () => {
+    setResult(null);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-dvh flex flex-col">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-zinc-50/80 backdrop-blur-xl border-b border-zinc-200/60">
+        <div className="max-w-lg mx-auto px-5 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-zinc-900 flex items-center justify-center">
+              <Scissors className="w-4.5 h-4.5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-base font-bold tracking-tight">
+                Hair Formula
+              </h1>
+              <p className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider">
+                L&apos;Or&eacute;al Professional
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+      </header>
+
+      {/* Content */}
+      <main className="flex-1 max-w-lg mx-auto w-full px-5 py-6 pb-28">
+        <AnimatePresence mode="wait">
+          {activeTab === "formula" ? (
+            result ? (
+              <motion.div
+                key="results"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-5"
+              >
+                <button
+                  onClick={handleBack}
+                  className="flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-800 transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  New Consultation
+                </button>
+                <FormulaCards
+                  result={result}
+                  onSave={() => setShowSaveModal(true)}
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="form"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+              >
+                <ConsultationForm onCalculate={handleCalculate} />
+              </motion.div>
+            )
+          ) : (
+            <motion.div
+              key="clients"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <ClientHistory key={clientKey} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
+
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-t border-zinc-200/60">
+        <div className="max-w-lg mx-auto flex">
+          <button
+            onClick={() => {
+              setActiveTab("formula");
+            }}
+            className={`flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${
+              activeTab === "formula"
+                ? "text-zinc-900"
+                : "text-zinc-400 hover:text-zinc-600"
+            }`}
+          >
+            <FlaskConical
+              className={`w-5 h-5 ${
+                activeTab === "formula" ? "stroke-[2.5]" : ""
+              }`}
+            />
+            <span className="text-[10px] font-semibold uppercase tracking-wider">
+              Formula
+            </span>
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab("clients");
+              setClientKey((k) => k + 1);
+            }}
+            className={`flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${
+              activeTab === "clients"
+                ? "text-zinc-900"
+                : "text-zinc-400 hover:text-zinc-600"
+            }`}
+          >
+            <Users
+              className={`w-5 h-5 ${
+                activeTab === "clients" ? "stroke-[2.5]" : ""
+              }`}
+            />
+            <span className="text-[10px] font-semibold uppercase tracking-wider">
+              Clients
+            </span>
+          </button>
+        </div>
+        {/* Safe area padding for iOS */}
+        <div className="h-[env(safe-area-inset-bottom)]" />
+      </nav>
+
+      {/* Save Modal */}
+      {result && (
+        <SaveFormulaModal
+          formula={result}
+          open={showSaveModal}
+          onClose={() => setShowSaveModal(false)}
+          onSaved={() => setClientKey((k) => k + 1)}
+        />
+      )}
     </div>
   );
 }

@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: hair-formula
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: out
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=3600
